@@ -19,7 +19,7 @@ void ph_pattern::ph_pattern_exec(
 #pragma HLS PIPELINE II=1
 #pragma HLS ARRAY_PARTITION variable=bx complete dim=0
      int mi=0;
- //    ap_uint<3> bx[red_pat_w_st1];
+
 
      ap_uint<3> lyhits=0;
      ap_uint<6> qcode_p [9];
@@ -37,8 +37,6 @@ void ph_pattern::ph_pattern_exec(
      ap_uint<3> a_foldn;
 
      a_foldn=foldn;
-label0:
-{
 
 
      ph_for:for (mi = 0; mi < red_pat_w_st1; mi = mi + 1){
@@ -149,23 +147,9 @@ label0:
                               ((int(bx[mi]) == 0x7) ? 0x7 :\
                               int(bx[mi]) + 0x1)); // bx starts counting at any hit in the pattern, even single
 
-/*
-            if(lyhits==0){
-            	bx[mi]=0;
-            }
-            else if(bx[mi]==0x7){
-            	bx[mi]=7;
-            }
-            else{
-            	bx[mi]=bx[mi]+1;
-            }
-
-*/
 
 
-            if
-            (
-             bx[mi] == drifttime && // if drift time is up, find quality of this pattern
+            if(bx[mi] == drifttime && // if drift time is up, find quality of this pattern
                 // remove single-layer and ME3-4 hit patterns
              lyhits != 0x1 &&
              lyhits != 0x2 &&
@@ -176,23 +160,12 @@ label0:
                 // station 1 has higher weight, station 2 lower, st. 3 and 4 lowest
                qcode_p[mi] = (straightness[2], lyhits[2], straightness[1], lyhits[1], straightness[0], lyhits[0]);
             }
-            /*else
-            {
-            	qcode_p[mi]=0;
-            }*/
 
 
 
+     }
 
-        		 	//	    std::cout<<"bx["<<mi<<"]= "<<bx[mi]<<std::endl;
-/*            if(station==2 && cscid==64){
-                    cout<<"st1= "<<st1<<" st2= "<<st2<<" st3= "<<st3<<" st4= "<<st4<<" drifttime= "<<drifttime<<hex<<endl;
-               	 cout<<"qcode_p["<<mi<<"]= "<<qcode_p[mi]<< "   bx[5]= "<<bx[5]<< "  lyhits= "<<lyhits<<hex<<endl;
-                          }*/
 
-           }
-
-}
      a_qcode = 0;
             // find max quality on each clock
             comp1[0] = qcode_p[0] > qcode_p[1] ? qcode_p[0] : qcode_p[1];

@@ -1,7 +1,6 @@
     #include <ap_int.h>
 #include "spbits.h"
 #include "best_track.h"
-using namespace std;
 
 void best_track::best_tracks_actual(ap_uint<bw_fph> phi[4][3],
 		ap_uint<bw_th> theta[4][3],
@@ -37,9 +36,7 @@ void best_track::best_tracks_actual(ap_uint<bw_fph> phi[4][3],
 		ap_uint<5> bt_si[3] // segment
 
 		) {
-//#pragma HLS LOOP_MERGE force
-//#pragma HLS EXPRESSION_BALANCE
-//#pragma HLS LATENCY max=0
+
 #pragma HLS INLINE off
 #pragma HLS INTERFACE ap_ctrl_none port=return
 #pragma HLS PIPELINE II=1
@@ -100,10 +97,8 @@ void best_track::best_tracks_actual(ap_uint<bw_fph> phi[4][3],
 
 
 	// [zone][pattern][station]		//	ap_uint<7> zm_addr [4][3][4];
-			ap_uint<4> real_ch [4][3][4];
-			ap_uint<3> real_st [4][3][4];
-			//ap_uint<4> real_ch;
-			//ap_uint<3> real_st;
+		ap_uint<4> real_ch [4][3][4];
+		ap_uint<3> real_st [4][3][4];
 
 
 
@@ -223,13 +218,6 @@ void best_track::best_tracks_actual(ap_uint<bw_fph> phi[4][3],
 			eq = ri == rj;
 			if (((i < j) && (gt || eq)) || ((i > j) && gt)){
 				larger[i][j] = 1;
-
-			//cout<<"i= "<<i<<" j= "<<j<<" gt = "<<gt<<" eq= "<<eq<<" ((i < j) && (gt || eq))= "<<((i < j) && (gt || eq))<<" ((i > j) && gt)= "<<((i > j) && gt)<<endl;
-		//	printf("i= %d j= %d   gt= %d, eq= %d  ((i < j) && (gt || eq))= %d  ((i > j) && gt)= %d ,   phi[0][0]=%d\n",i,j,gt,eq,((i < j) && (gt || eq)),((i > j) && gt), int(phi[0][0]));
-			}
-			if(i==0 ){
-		//		cout<<"rank= "<<rank[j%4][j/4]<<endl;
-		//		cout<<"ri= "<<ri<<" rj= "<<rj<<endl;
 			}
 		}
 		// "larger" array shows the result of comparison for each rank
@@ -257,10 +245,13 @@ void best_track::best_tracks_actual(ap_uint<bw_fph> phi[4][3],
 
 	for(index_i=0,i=0;i<12;i++,index_i=index_i+1){
 	#pragma HLS DEPENDENCE false
-
-
 	#pragma HLS UNROLL
-	index_j=0;
+		//index_i(5,2) counter emulates behavior of i/4
+		//index_i(1,0) counter emulates behavior of i%4
+
+		//index_j(5,2) counter emulates behavior of j/4
+		//index_j(1,0) counter emulates behavior of j%4
+		index_j=0;
 
 
 
@@ -295,8 +286,6 @@ void best_track::best_tracks_actual(ap_uint<bw_fph> phi[4][3],
 			kill1 =kill1 | kill1_t[i][j];
 		}
 	}
-	//exists = (~kill1);
-
 
 	// remove ghosts according to kill mask
 	exists = exists & (~kill1);
@@ -304,9 +293,8 @@ void best_track::best_tracks_actual(ap_uint<bw_fph> phi[4][3],
 
 
 
-	for (i = 0; i <12 ; i = i + 1) {//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	for (i = 0; i <12 ; i = i + 1) {
 #pragma HLS UNROLL
-//#pragma HLS LOOP_MERGE force
 #pragma HLS DEPENDENCE false
 		if(exists[i]){
 		larger[i] = larger[i] | (~exists); // if this track exists make it larger than all non-existing tracks
@@ -316,21 +304,22 @@ void best_track::best_tracks_actual(ap_uint<bw_fph> phi[4][3],
 		}
 		// count zeros in the comparison results. The best track will have none, the next will have one, the third will have two.
 		sum[i]=zero_count(larger[i]);
+		//zero_count functions counts number of 0 in the 12 bits of larger[i]
 
-		if (sum[i] < 3)//CULPRIT
-			winner[i][sum[i]] =1;//(~sum[5] & ~sum[4] & ~sum[3] & ~sum[2] & (~sum[1] 	| (sum[1] & ~sum[0])));//1; // assign positional winner codes
+		if (sum[i] < 3)
+			winner[i][sum[i]] =1;// assign positional winner codes
 	}
 
 
 	// multiplex best tracks to outputs according to winner signals
-	for (n = 0; n < 3; n = n + 1) { // output loop !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	for (n = 0; n < 3; n = n + 1) { // output loop
 #pragma HLS UNROLL
 #pragma HLS DEPENDENCE false
-//#pragma HLS LOOP_FLATTEN
-		for (i = 0; i < 12; i = i + 1) { // winner bit loop//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+		for (i = 0; i < 12; i = i + 1) { // winner bit loop
 #pragma HLS UNROLL
 #pragma HLS DEPENDENCE false
-//#pragma HLS LOOP_FLATTEN
+
 			if(winner[i][n]){
 			//if (winner[n][i]) {
 
@@ -341,7 +330,6 @@ void best_track::best_tracks_actual(ap_uint<bw_fph> phi[4][3],
 				for (s = 0; s < 4; s = s + 1) { // station loop
 #pragma HLS UNROLL
 #pragma HLS DEPENDENCE false
-//#pragma HLS LOOP_FLATTEN
 					bt_cpattern[n][s] =bt_cpattern[n][s]
 							| cpattern[i % 4][i / 4][s];
 				}
@@ -349,7 +337,6 @@ void best_track::best_tracks_actual(ap_uint<bw_fph> phi[4][3],
 				for (s = 0; s < 6; s = s + 1) { // delta loop
 #pragma HLS UNROLL
 #pragma HLS DEPENDENCE false
-//#pragma HLS LOOP_FLATTEN
 					bt_delta_ph[n][s] = bt_delta_ph[n][s] | delta_ph[i % 4][i / 4][s];
 					bt_sign_ph[n][s] = bt_sign_ph[n][s]   | sign_ph[i % 4][i / 4][s];
 					bt_delta_th[n][s] = bt_delta_th[n][s] | delta_th[i % 4][i / 4][s];
@@ -359,7 +346,6 @@ void best_track::best_tracks_actual(ap_uint<bw_fph> phi[4][3],
 				for (s = 0; s < 5; s = s + 1) { // station loop
 #pragma HLS UNROLL
 #pragma HLS DEPENDENCE false
-//#pragma HLS LOOP_FLATTEN
 					bt_vi[n][s] = bt_vi[n][s] | cn_vi[i % 4][i / 4][s];
 					bt_hi[n][s] = bt_hi[n][s] | cn_hi[i % 4][i / 4][s];
 					bt_ci[n][s] = bt_ci[n][s] | cn_ci[i % 4][i / 4][s];

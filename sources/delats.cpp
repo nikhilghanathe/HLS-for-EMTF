@@ -263,8 +263,7 @@ void delta::deltas_m0(
 	 		 						);
 
 	 		 	 ap_uint<1>	dvalid = dvl12 != 0 || dvl13 != 0 || dvl14 != 0 || dvl23 != 0 || dvl24 != 0 || dvl34 != 0;
-{
-//#pragma HLS LATENCY min=1 max=1
+
 
 	 				// find valid segments
 	 					vmask1 = 0x0;
@@ -358,7 +357,7 @@ void delta::deltas_m0(
 	 						cpattern[i] = cpat_match[i]; // take all CLCT patterns
 	 					}
 
-}
+
 
 	 		*rank=a_rank;
 	 		*sign_ph=a_sign_ph;

@@ -1,10 +1,7 @@
-#include "ap_int.h"
+#include <ap_int.h>
 #include "spbits.h"
 #include <stdio.h>
 #include "primitive.h"
-
-
-using namespace std;
 
 void primitive11::prim_conv11(
 			ap_uint<4> quality[seg_ch],
@@ -28,7 +25,7 @@ void primitive11::prim_conv11(
 			)
 
 {
-//#pragma HLS LATENCY min=0
+
 #pragma HLS INTERFACE ap_ctrl_none port=return
 #pragma HLS INLINE off
 #pragma HLS PIPELINE II=1
@@ -44,31 +41,11 @@ void primitive11::prim_conv11(
 #pragma HLS ARRAY_PARTITION variable=th_corr_mem complete dim=0
 
 
-/*
-#pragma HLS INTERFACE register port=ph
-#pragma HLS INTERFACE register port=th
-#pragma HLS INTERFACE register port=vl
-#pragma HLS INTERFACE register port=me11a
-#pragma HLS INTERFACE register port=phzvl
-#pragma HLS INTERFACE register port=clctpat_r
-#pragma HLS INTERFACE register port=ph_hit
-#pragma HLS INTERFACE register port=th_hit
-#pragma HLS INTERFACE register port=r_out
-*/
-
 
 	int i,j;
 
 
-
-//std::cout<<"stationa = "<<station<<"cscid = "<<cscid<<std::endl;
-
-/*	for(int i=0;i<th_corr_mem_sz;i++)
-				std::cout<<"th_Corr_mem_st["<<i<<"] = "<<th_corr_mem[i]<<"   "<<std::endl;*/
-
-
 	ap_uint<12> temp;
-
 	ap_uint<8> pc_id;
 	ap_uint<seg_ch> me11a_w;
 
@@ -85,7 +62,7 @@ void primitive11::prim_conv11(
      ap_uint<bw_wg>  wg;
      ap_uint<bw_th>  th_tmp;
 
-      ap_uint<th_hit_w> a_th_hit=0;
+     ap_uint<th_hit_w> a_th_hit=0;
      ap_uint<ph_hit_w> a_ph_hit=0;
      ap_uint<bw_fph> a_ph[seg_ch]={0};
      ap_uint<3> a_phzvl;
@@ -94,96 +71,41 @@ void primitive11::prim_conv11(
     const  ap_uint<2> zero_2=0;
     const  ap_uint<3> zero_3=0;
     const  ap_uint<1> zero_1=0;
-//    ap_uint<4> th_corr;
-   // ap_uint<1> ph_reverse;
 
-   //ap_uint<16> ph_coverage;
      ap_uint<4> th_corr;
      const int ph_coverage=20;
      const int th_coverage=45;
      const int ph_zone_bnd1=41;
      const int ph_zone_bnd2=127;
 
+     // is this chamber mounted in reverse direction?
      ap_uint<1>ph_reverse = (endcap == 0x1 && station <  3) ? 1: 0;
 
       ap_uint<bw_th> a_th[seg_ch*seg_ch];
 #pragma HLS ARRAY_PARTITION variable=a_th complete dim=0
-/*
-    if(station <= 1 && cscid >= 6)
-    	ph_coverage=15;
-    else if(station >= 2 && cscid <= 2)
-    	ph_coverage=40;
-    else
-    	ph_coverage=20;
-*/
 
+ 			ap_uint<2> a_vl;
+   			ap_uint<3>  ph_init_ix; // parameter index for ph_init
+   			ap_uint<6> th_orig;
+   		// theta correction lut, for me1/1 only
+		// takes index = {wiregroup(2 MS bits), dblstrip}, returns theta correction for tilted wires
 
-
-// is this chamber mounted in reverse direction?
-
-/*
-    ap_uint<16>th_coverage;
-	th_coverage= 0;
-    		if(station <= 1){
-    			if(cscid<=2)th_coverage=45;
-    			if(cscid >= 6)  th_coverage=27;
-    			else if(cscid >= 3)  th_coverage=39;
-
-    		}
-
-    		if(station == 2){
-    			if(cscid<=2) th_coverage=43;
-    			if(cscid >= 3)  th_coverage=56;
-    		}
-    		if(station == 3){
-    		    if(cscid <= 2)  th_coverage=34;
-    		    if(cscid >= 3)  th_coverage=52;
-    		}
-    		if(station == 4){
-    			if(cscid <= 2)  th_coverage=28;
-    		    if(cscid >= 3)  th_coverage=50;
-    		}
-*/
-
-
-
-/*const int  ph_zone_bnd1 =(station <= 1 && cscid <= 2) ? 41 :(station == 2 && cscid <= 2) ? 41 : (station == 2 && cscid >  2) ? 87 :(station == 3 && cscid >  2) ? 49 :(station == 4 && cscid >  2) ? 49 : 127;
-
-const int ph_zone_bnd2= (station == 3 && cscid >  2) ? 87 : 127;*/
-
-/*    ph_reverse=0;
-        	 if(endcap == 0 && station >= 3)
-        		 	 ph_reverse=1;
-
-        	 if(endcap == 0x1 && station <  3)
-        		 ph_reverse=1;*/
-
-
-    			ap_uint<2> a_vl;
-    			ap_uint<3>  ph_init_ix; // parameter index for ph_init
-    			ap_uint<6> th_orig;
-    		// theta correction lut, for me1/1 only
-  			// takes index = {wiregroup(2 MS bits), dblstrip}, returns theta correction for tilted wires
-
-    			ap_uint<4> a_clctpat_r[seg_ch];
-
-
-
-
+ 	 ap_uint<4> a_clctpat_r[seg_ch];
 	 pc_id=  (cscid,station);
 
+	 //Initialize outputs to 0
 for(int i=0;i<seg_ch*seg_ch;i++){
 #pragma HLS UNROLL
 	a_th[i]=0;
 }
-
 	 a_ph_hit=0; a_th_hit=0; a_phzvl=0; a_vl=0;
+
+
+
 
 		prim_conv1_label0:for (i = 0; i < seg_ch; i = i+1)
 		{
 #pragma HLS UNROLL
-
-
 
 			//factor[i]=(station <= 1 && cscid <= 2 && hstrip[i] > 127) ? 1707 :  // ME1/1a
 				//	1301; // ME1/1b
@@ -198,9 +120,6 @@ for(int i=0;i<seg_ch*seg_ch;i++){
 				 me11a_w[i]=0;
 				 factor[i]=1301;
 			 }
-
-
-		//	cout<<"me11a_1 of iteration "<<i<<"is "<<me11a_w[i]<<hex<<endl;
 
 			// clct pattern convertion array from CMSSW
 			//{0.0, 0.0, -0.60,  0.60, -0.64,  0.64, -0.23,  0.23, -0.21,  0.21, 0.0}
@@ -238,10 +157,6 @@ for(int i=0;i<seg_ch*seg_ch;i++){
 				eight_str[i] = eight_str[i] - (aclct_pat_corr(2,1));
 
 
-				//cout<<"eight_str before of iteration "<<i<<"is "<<eight_str[i]<<hex<<endl;
-
-
-
 
 			if(quality[i])
 			{
@@ -250,29 +165,26 @@ for(int i=0;i<seg_ch*seg_ch;i++){
 				// for factors 1024 and 2048 the multiplier should be replaced with shifts by synthesizer
 				mult = eight_str[i] * factor[i];
 				ph_tmp = (mult >> 10);
-				//cout<<"ph_tmp of iteration "<<i<<"is "<<ph_tmp<<hex<<endl;
+				ph_init_ix = (me11a_w[i] ? 2:0); // index of ph_init parameter to apply (different for ME11a and b)
 
-					ph_init_ix = (me11a_w[i] ? 2:0); // index of ph_init parameter to apply (different for ME11a and b)
-
-
-
-	    		  if (ph_reverse)
+				if (ph_reverse)
 					{
-				    	fph[i] = params[ph_init_ix] - ph_tmp;
-				    //	cout<<"fph of iteration "<<i<<"is "<<fph[i]<<hex<<endl;
+				      fph[i] = params[ph_init_ix] - ph_tmp;
 						// set ph raw hits
-					a_ph_hit.set_bit(int(ph_coverage-(ph_tmp(bw_fph-1,5)) + (params[ph_init_ix+1](7,1))),1);
+					  a_ph_hit.set_bit(int(ph_coverage-(ph_tmp(bw_fph-1,5)) + (params[ph_init_ix+1](7,1))),1);
 					}
 				  else
 					{
-						fph[i] = params[ph_init_ix] + ph_tmp;
+					  fph[i] = params[ph_init_ix] + ph_tmp;
 						// set ph raw hits
-					a_ph_hit.set_bit(int((ph_tmp(bw_fph-1,5)) + (params[ph_init_ix+1](7,1))),1);
+					  a_ph_hit.set_bit(int((ph_tmp(bw_fph-1,5)) + (params[ph_init_ix+1](7,1))),1);
 
 
 					}
 
-	   		  wg = wiregroup[i];
+
+
+			wg = wiregroup[i];
 			// th conversion
 	   		// call appropriate LUT, it returns th[i] relative to wg0 of that chamber
 	   		  th_orig = th_mem[wg];
@@ -285,10 +197,7 @@ for(int i=0;i<seg_ch*seg_ch;i++){
 	   			  // calculate correction for each strip number
 
 				// index is: {wiregroup(2 MS bits), dblstrip(5-bit for these chambers)}
-
 	   			  ap_uint<7> index = (wg(5,4), eight_str[j](8,4));
-
-
 				 th_corr = th_corr_mem[index];
 
 				// apply correction to the corresponding output
@@ -301,8 +210,8 @@ for(int i=0;i<seg_ch*seg_ch;i++){
 				if (th_tmp < th_coverage)
 				{
 					// apply initial th value for that chamber
-
 				  a_th[i*seg_ch+j] = th_tmp + params[4];
+
 				  // th hits
 				  a_th_hit.set_bit(int(th_tmp + params[5]),1);
 
@@ -316,54 +225,35 @@ for(int i=0;i<seg_ch*seg_ch;i++){
 				}
 				else{
 					a_th[(i*seg_ch)+j]=0;
-					//a_th_hit=0;
-					//a_phzvl=0;
 				}
-	   		  }
+	   		  }//if (quality[j])
 	   		  else{
 	   			  a_th[(2*i)+j]=0;
 	   		  }
 
-	   		}
+	   		}//for (j = 0; j < seg_ch; j = j+1)
 	   		clctpat_r[i] = clctpat[i]; // just propagate pattern downstream
 
 			}// if (quality[i])
 			else
 			{
 				fph[i] = 0; clctpat_r[i] = 0;
-				//a_phzvl = 0;
-				//a_ph_hit = 0;
-				//a_th_hit = 0;
-				//a_vl=0;
 			}
 	    		  			ph[i] = fph[i];
 
-			}
+			}//for (i = 0; i < seg_ch; i = i+1)
 
 for(int i=0;i<seg_ch*seg_ch;i++){
 #pragma HLS UNROLL
 	th[i]=a_th[i];
 		}
+
+
 *me11a = (me11a_w[1],me11a_w[0]);
 *phzvl=a_phzvl;
 *ph_hit= a_ph_hit;
 *th_hit = a_th_hit;
 *vl = a_vl;
-
-
-/*
-		if(sel==0)
-			temp= params[addr];
-		else if(sel==1)
-			temp=th_mem[addr];
-		else if(sel11==0)
-			temp= params[addr];
-		else if(sel11==1)
-			temp=th_corr_mem[addr];
-		else
-			temp=pc_id;
-*/
-
 
 *r_out=temp;
 }

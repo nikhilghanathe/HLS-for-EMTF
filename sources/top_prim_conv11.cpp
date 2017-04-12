@@ -4,9 +4,7 @@
 #include <fstream>
 #include <iostream>
 
-using namespace std;
-
-
+//wrapper func for prim_conv11
 void primitive11::top_prim_conv11(
 					ap_uint<4> quality[seg_ch],
 					ap_uint<bw_wg> wiregroup[seg_ch],
@@ -50,9 +48,10 @@ void primitive11::top_prim_conv11(
 	volatile ap_uint<3> a_phzvl;
 	volatile ap_uint<ph_hit_w> a_ph_hit;
 	volatile ap_uint<th_hit_w> a_th_hit;
-	//static primitive11 inst;
+
 if(we==1)
 {
+	//load LUTs
 	this->mem11(r_in,
 			 we,
 			 addr,
@@ -67,7 +66,7 @@ if(we==1)
 
 else
 {
-
+		//primtive converter
 		this->prim_conv11(
 			 		quality,
 			 		wiregroup,

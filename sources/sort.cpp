@@ -1,9 +1,8 @@
 #include <ap_int.h>
 #include "spbits.h"
-//#include "sort.h"
 #define num_levels 4
 #include "sort.h"
-using namespace std;
+
 
 ap_uint<bwr> min_elem(ap_uint<bwr> a,
 		ap_uint<bwr> b,
@@ -51,30 +50,12 @@ void sorter::sort(ap_uint<bwr> *winner0,
 
 
 
-	/*for(int i=0;i<cnrex;i++)
-		cout<<"a["<<i<<"]= "<<a[i]<<endl;
-*/
-
-/*
-	sort_label1:for(int i=0;i<cnrex/2;i++){
-#pragma HLS UNROLL
-		ranki[i]=i;
-		win_l0[i]=a[2*i] | a[(2*i)+1];
-	}
-*/
-
-
 
 	best3_label6:for(int i = 0; i < cnrex/2; i = i+1){
 #pragma HLS UNROLL
 win_l0[i] = a[i*2] | a[(2*i)+1];
 ranki[i]=i;
 	}
-	/*	best3_label7:for (int i = cnrex/2; i < cnr; i = i+1)
-		{
-#pragma HLS UNROLL
-win_l0[i] = 0;
-		}*/
 
 	win_l0[61]=0;
 	win_l0[62]=0;
@@ -83,11 +64,7 @@ win_l0[i] = 0;
 	ranki[62]=62;
 	ranki[63]=63;
 
-/*
-	for(int i=0;i<3;i++)
-				std::cout<<winner<<"["<<i<<"]= "<<winner[i]<<std::endl;
-*/
-
+	//build comparison tree
 /*****************FIRST LEVEL******************************/
 
 int ncomp=cnr;
@@ -105,8 +82,6 @@ int ncomp=cnr;
 
 
 		}
-		/*win_l1[15]=win_l0[60];
-		ranki_l1[15]=60;*/
 
 		ncomp=ncomp/4;
 
@@ -123,28 +98,17 @@ int ncomp=cnr;
 											&a_winid_1);
 			ranki_l2[j]=ranki_l1[a_winid_1+(4*j)];
 
-/*			cout<<"elements are : "<<win_l1[4*(j)]<<" "<<win_l1[(4*j)+1]<<" "<<win_l1[(4*j)+2]<<" "<<win_l1[(4*j)+3]<<endl;
-			cout<<"indices are : "<<ranki_l1[4*(j)]<<" "<<ranki_l1[(4*j)+1]<<" "<<ranki_l1[(4*j)+2]<<" "<<ranki_l1[(4*j)+3]<<endl;
-			cout<<"win_l1["<<j<<"]= "<<win_l2[j]<<endl;
-			cout<<"ranki_l2["<<j<<"]= "<<ranki_l2[j]<<endl;
-			cout<<j<<": a_wind= "<<a_winid_1<<endl;*/
-
-
-
 	}
 
 /*****************FINAL LEVEL******************************/
 	win0=min_elem(win_l2[0],win_l2[1],win_l2[2],win_l2[3],&a_winid_2);
-	//if(win0==0)
+
 		*winner0= win0; //? win0 : ap_uint<bwr>(0x7E);
 	winid0=ranki_l2[a_winid_2];
 	if(win0==a[2*winid0])
 		*winindex0= winid0 ? ap_uint<bpow+1>((2* winid0)) : ap_uint<bpow+1>(0x7F);
 	else
 		*winindex0= winid0 ? ap_uint<bpow+1>((2*winid0)+1) : ap_uint<bpow+1>(0x7F);
-
-
-	//*winindex0=winid0;
 
 
 

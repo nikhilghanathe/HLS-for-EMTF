@@ -1,15 +1,14 @@
 #include <ap_int.h>
 #include "spbits.h"
 #include "match_seg.h"
-using namespace std;
-#define add if(this->pr==1)
+
 
 void match_seg::find_segment_1_62(
 		 ap_uint<bpow+1> ph_pat_p, // ph detected in pattern
 		 ap_uint<6> ph_pat_q_p, // pattern valid
 
 		 /* ph from segments [bx_history][chamber][segment]segments are coming from
-		  chambers in the interesting zone onlyfor example, in zone 0 ME1 segments
+		  chambers in the interesting zone only; for example, in zone 0 ME1 segments
 		  should come from chambers subsector1: 1,2,3, subsector2: 1,2,3*/
 		 ap_uint<bw_fph> ph_seg_p[max_drift][zone_cham][seg_ch],
 
@@ -77,26 +76,7 @@ void match_seg::find_segment_1_62(
 	 ap_uint<3> a_cid; // chamber id
 	 ap_uint<1> a_sid;
 
-/*for(int i=0;i<3;i++){
-	for(int j=0;j<3zone_cham;j++){
-		for(int k=0;k<2zone_seg;k++){
-			  cout<<hex<<"th_seg_p["<<i<<"]["<<j<<"]["<<k<<"]= "<<th_seg_p[i][j][k]<<hex<<endl;
-		}
 
-	}
-}*/
-	 if(this->pr==1){
-	 cout<<"ph_pat_p= "<<ph_pat_p<<endl;
-	 cout<<"ph_pat_q_p= "<<ph_pat_q_p<<endl;
-	 for(int i=0;i<3;i++){
-	 	for(int j=0;j<6/*zone_cham*/;j++){
-	 		for(int k=0;k<2;k++){
-	 			  cout<<hex<<"ph_seg_p["<<i<<"]["<<j<<"]["<<k<<"]= "<<ph_seg_p[i][j][k]<<hex<<endl;
-	 		}
-
-	 	}
-	 }
-	 }
 	 ph_pat = ph_pat_p;
 	 	ph_pat_v = ph_pat_q_p != 0; // non-zero quality means valid pattern
 	 	find_segment_st1_label0:for(int i=0;i<max_drift;i++){
@@ -112,10 +92,7 @@ void match_seg::find_segment_1_62(
 	 			find_segment_st1_label3:for(int k=0;k<2/*zone_seg*/;k++){
 	 #pragma HLS UNROLL
 	 				th_seg[i][j][k] = th_seg_p[i][j][k];
-					  if(this->pr==1 && ph_pat_p==0x49){
-										  //for(int i=0;i<36;i++){
-		//  cout<<"th_seg_p["<<i<<"]["<<j<<"]["<<k<<"]= "<<th_seg_p[i][j][k]<<hex<<endl;
-					  }
+
 	 			}
 	 			find_segment_st1_label4:for(int k=0;k<seg_ch;k++){
 	 #pragma HLS UNROLL
@@ -151,6 +128,7 @@ void match_seg::find_segment_1_62(
 	 				ri = i;
 	 				rj = j;
 	 				rk = k;
+
 	 				// diffi variables carry track indexes
 	 				diffi0[i*6/*zone_cham*/*seg_ch + j*seg_ch + k] = (ri, rj, rk);
 	 			}

@@ -14,8 +14,7 @@ public:
 		    ap_uint<ph_raw_w>  ph_zone [4][5];
 
 
-//Primitive Converter
-
+	//Primitive Converter
 	void prim_conv_sector(/*inputs*/
 							ap_uint<4>  q[5][9][seg_ch],
 							ap_uint<bw_wg> wg[5][9][seg_ch],
@@ -47,26 +46,10 @@ public:
 
 
 
-//Zone image formation
+	//Zone image formation
 	 void zones ( ap_uint<3> phzvl_in[5][9],
 			  ap_uint<ph_hit_w> ph_hit_in[5][9],
-		    	 ap_uint<ph_raw_w> ph_zone[4][5]/*,
-				ap_uint<bw_fph> ph_in[5][9][seg_ch],
-						ap_uint<bw_th> th11_in[2][3][th_ch11],
-						ap_uint<bw_th> th_in[5][9][seg_ch],
-						ap_uint<seg_ch> vl_in[5][9],
-						ap_uint<seg_ch> me11a_in[2][3],
-						ap_uint<4> cpatr_in[5][9][seg_ch],
-						ap_uint<th_hit_w> th_hit_in[5][9],
-						ap_uint<bw_fph> ph[5][9][seg_ch],
-						ap_uint<bw_th> th11[2][3][th_ch11],
-						ap_uint<bw_th> th[5][9][seg_ch],
-						ap_uint<seg_ch> vl[5][9],
-						ap_uint<3> phzvl[5][9],
-						ap_uint<seg_ch> me11a[2][3],
-						ap_uint<4> cpatr[5][9][seg_ch],
-						ap_uint<ph_hit_w> ph_hit[5][9],
-						ap_uint<th_hit_w> th_hit[5][9]*/) ;
+		    	 ap_uint<ph_raw_w> ph_zone[4][5]) ;
 
 
 	 //Zone hit Extender
@@ -173,7 +156,9 @@ public:
 
 
 							);
-//best tracks selector
+
+
+		//best tracks selector
 		void best_tracks(
 				ap_uint<bw_fph>  phi [4][3],
 				ap_uint<bw_th>  theta [4][3],
@@ -214,7 +199,9 @@ public:
 				ap_uint<5>   		bt_si [3] // segment
 
 					);
-//ptlut address
+
+
+		//ptlut address
 		void ptlut_address(
 				// precise phi and theta of best tracks
 				// [best_track_num]
@@ -253,57 +240,8 @@ public:
 				ap_uint<3> sector,
 				ap_uint<1> endcap,
 				ap_uint<1> we);
-	void sp(	ap_uint<4>         q    [5][9][seg_ch],
-		    ap_uint<bw_wg>   wg   [5][9][seg_ch],
-		    ap_uint<bw_hs>   hstr [5][9][seg_ch],
-		    ap_uint<4>  	   cpat [5][9][seg_ch],
 
-		    ap_uint<9>  	   pcs_cs [5],
-		    ap_uint<5>  	   pps_cs [3],
-		    ap_uint<2>  	   sel,
-		    ap_uint<2>		   sel11,
-		    ap_uint<bw_addr>  addr,
-
-		    ap_uint<12>  		r_in, // ap_uint<> data for memory or register
-		    ap_uint<12>  		r_out, // ap_uint<> data from memory or register
-		    ap_uint<1> 				we, // write enable for memory or register
-
-			// precise phi and theta of best tracks
-			// [best_track_num]
-			ap_uint<bw_fph>  bt_phi [3],
-			ap_uint<bw_th>  	bt_theta [3],
-			// [best_track_num][station]
-			ap_uint<4>   	bt_cpattern [3][4],
-			// ph and th deltas from best stations
-			// [best_track_num], last index: 0=12, 1=13, 2=14, 3=23, 4=24, 5=34
-			ap_uint<bw_fph>  bt_delta_ph [3][6],
-			ap_uint<bw_th>  	bt_delta_th [3][6],
-			ap_uint<6>  		bt_sign_ph[3],
-			ap_uint<6>  		bt_sign_th[3],
-			// ranks [best_track_num]
-			ap_uint<bwr+1>  		bt_rank [3],
-			// segment IDs
-			// [best_track_num][station 0-3]
-			ap_uint<seg_ch>  bt_vi [3][5], // valid
-			ap_uint<2>  		bt_hi [3][5], // bx index
-			ap_uint<4>  		bt_ci [3][5], // chamber
-			ap_uint<5>  		bt_si [3], // segment
-
-		    ap_uint<30>  ptlut_addr [3], // ptlut addresses for best 3 muons
-		    ap_uint<32>  ptlut_cs [3], // pre-decoded chip selects
-		    ap_uint<3>  ptlut_addr_val, // ptlut address valid flags
-			ap_uint<8>  gmt_phi [3], // phi for gmt
-		    ap_uint<9>  gmt_eta [3], // eta for gmt
-
-			ap_uint<1> endcap,
-			ap_uint<3>  sector,
-			ap_uint<1> lat_test,
-			ap_uint<1> print_flag
-			);
 
 
 };
-//Sorter module
-void sort_sector(ap_uint<bwr> ph_rank[4][ph_raw_w],
-				 ap_uint<bpow+1> ph_num[4][3],
-				 ap_uint<bwr> ph_q[4][3]);
+

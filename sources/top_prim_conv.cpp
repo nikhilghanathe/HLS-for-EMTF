@@ -4,8 +4,7 @@
 #include <fstream>
 #include <iostream>
 
-using namespace std;
-
+//wrapper func for prim_conv
 void primitive::top_prim_conv(
 			ap_uint<4> quality[seg_ch],
 					ap_uint<bw_wg> wiregroup[seg_ch],
@@ -50,9 +49,10 @@ void primitive::top_prim_conv(
 	ap_uint<3> a_phzvl;
 		ap_uint<ph_hit_w> a_ph_hit;
 		ap_uint<th_hit_w> a_th_hit;
-	//primitive inst;
+
 if(we==1)
 {
+	//load LUTS
 	this->mem( 	r_in,
 			 we,
 			 addr,
@@ -65,7 +65,7 @@ if(we==1)
 
 else
 {
-
+	//primitive converter
 		this->prim_conv1(
 			 		quality,
 			 		wiregroup,
@@ -91,53 +91,7 @@ else
 }
 
 
-#ifndef __SYNTHESIS__
 
-    char* fes=  "_endcap_1_sec_2_"; // endcap and sector numbers for LUT file names
-	char* fest= "_endcap_1_sect_2"; // endcap and sector numbers for LUT file names
-	char* dpath= "C:/Vivado/Verification_PRATAP";
-	char concat[1000]; unsigned int tmp;
-	int errors;
-
-/*	if(station==2 && cscid==0 && we==1 && sel==1){
-	//	cout<<"th_mem["<<i<<"]= "<<th_mem[i]<<endl;
-
-		cout<<"r_in ="<<r_in<<" addr= "<<addr<<"for st: "<<station<< " cscid: "<<cscid<<endl;
-	}*/
-
-if(print_flag==1/* && station==2 && cscid==0*/){
-errors=0;
-	FILE *fp;
-
-
-	//verify th_mem
-	if(station<=1)
-		sprintf(concat,"%s/vl_lut/vl_th_lut%ssub_%d_st_1_ch_%d.lut",dpath,fes,int(station+1),int(cscid+1));
-	else
-		 sprintf(concat,"%s/vl_lut/vl_th_lut%sst_%d_ch_%d.lut",dpath,fes,int(station),int(cscid+1));
-
-  cout<<concat<< " with st: "<<station<<" cscid: "<<cscid<<endl;
-
-		fp=fopen(concat,"r");
-
-		for(int i=0;i<th_mem_sz;i++){
-			fscanf(fp,"%x", &tmp);
-			if(feof(fp) && errors==0){
-						cout<<" Success of th_mem from st: "<<station<<" and cscid: "<<cscid<<endl;
-								break;
-					}
-			if(tmp!=th_mem[i]){
-				cout<<"tmp= "<<int(tmp)<<" th_mem= "<<int(th_mem[i])<<" with st: "<<station<<" and cscid: "<<cscid<<" failed at i= "<<int(i)<<endl;
-				//break;
-				errors++;
-			}
-
-
-		}
-		fclose(fp);
-cout<<endl; cout<<endl;
-}
-#endif
 *phzvl=a_phzvl;
 *ph_hit=a_ph_hit;
 *th_hit=a_th_hit;

@@ -6,20 +6,14 @@
 #define zone_cham  6 // 6 chambers in this zone and station
 #define zone_seg  th_ch11 // segments per chamber in this zone and station
 
-/*
-#define max_ph_diff  (station == 1 ? 15 :7) // max phi difference between pattern and segment
-#define bw_phdiff (station == 1 ? 5 : 4) // ph difference bit width
-#define tot_diff = max_drift*zone_cham*seg_ch
-#define nodiff  (station == 1 ? 31 :15) // invalid difference
-*/
 
 class match_seg{
 
 
 
 public:
-	ap_uint<1> pr;
 
+//station==1; zone_seg=th_ch11; zone_cham=6
 	void find_segment_st1(
 				 ap_uint<bpow+1> ph_pat_p, // ph detected in pattern
 					 ap_uint<6> ph_pat_q_p, // pattern valid
@@ -46,6 +40,8 @@ public:
 				 ap_uint<4> *cpat_match // pattern from matching segmen
 				);
 
+
+	//station!=1; zone_seg=2; zone_cham=3
 	void find_segment_stn1(
 					 ap_uint<bpow+1> ph_pat_p, // ph detected in pattern
 					 ap_uint<6> ph_pat_q_p, // pattern valid
@@ -72,7 +68,7 @@ public:
 					 ap_uint<4> *cpat_match // pattern from matching segmen
 				);
 
-
+	//station==1; zone_seg=seg_ch; zone_cham=6
 	void find_segment_1_62(
 					 ap_uint<bpow+1> ph_pat_p, // ph detected in pattern
 					 ap_uint<6> ph_pat_q_p, // pattern valid
@@ -99,6 +95,7 @@ public:
 					 ap_uint<4> *cpat_match // pattern from matching segmen
 				);
 
+	//station!=1; zone_seg=seg_ch; zone_cham=6
 	void find_segment_n1_62(
 					 ap_uint<bpow+1> ph_pat_p, // ph detected in pattern
 					 ap_uint<6> ph_pat_q_p, // pattern valid

@@ -10,7 +10,7 @@ void sp_c::extend_sector(   ap_uint<ph_raw_w> ph_zone[4][5],
 			  ap_uint<ph_raw_w>	ph_ext[4][5],
 			ap_uint<3> drifttime)
 			{
-#//pragma HLS PROTOCOL fixed
+
 #pragma HLS INTERFACE ap_ctrl_none port=return
 #pragma HLS INLINE off
 #pragma HLS PIPELINE II=1

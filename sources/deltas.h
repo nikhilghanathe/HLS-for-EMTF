@@ -3,7 +3,7 @@
 
 #define nodiff ((1<<(bw_th))-1)
 #define seg_1 th_ch11
-//#define bw_num  (nseg == seg_ch * seg_ch) ? 2 : 3
+
 
 
 class delta{

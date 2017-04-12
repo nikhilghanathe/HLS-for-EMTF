@@ -2,14 +2,15 @@
 #include "spbits.h"
 #include <iostream>
 #include "best_track.h"
-using namespace std;
+
+//optimized implementation of mod of 3 (%3) to improve latency
 ap_uint<4> best_track::mod3 (ap_uint<4> input)
 {
 #pragma HLS PIPELINE II=1
 #pragma HLS INTERFACE ap_ctrl_none port=return
 #pragma HLS INLINE
 
-	//if(a>3)
+
 	ap_uint<1> a,b,c,d;
 	a=input[3];
 	b=input[2];

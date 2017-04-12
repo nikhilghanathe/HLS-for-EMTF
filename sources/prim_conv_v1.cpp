@@ -3,8 +3,6 @@
 #include <stdio.h>
 #include "primitive.h"
 
-using namespace std;
-
 
 void primitive::prim_conv1(
 		ap_uint<4> quality[seg_ch],
@@ -41,25 +39,9 @@ void primitive::prim_conv1(
 #pragma HLS ARRAY_PARTITION variable=params complete dim=0
 #pragma HLS ARRAY_PARTITION variable=th_mem complete dim=0
 
-/*
-#pragma HLS INTERFACE register port=ph
-#pragma HLS INTERFACE register port=th
-#pragma HLS INTERFACE register port=vl
-#pragma HLS INTERFACE register port=me11a
-#pragma HLS INTERFACE register port=phzvl
-#pragma HLS INTERFACE register port=clctpat_r
-#pragma HLS INTERFACE register port=ph_hit
-#pragma HLS INTERFACE register port=th_hit
-#pragma HLS INTERFACE register port=r_out
-*/
 
 
 	int i;
-
-/*
-	for(int i=0;i<th_mem_sz;i++)
-				std::cout<<"th_mem_st["<<i<<"] = "<<th_mem[i]<<"   "<<std::endl;*/
-
 	ap_uint<12> temp;
 
 	ap_uint<11> factor;
@@ -93,9 +75,8 @@ void primitive::prim_conv1(
 
      ap_uint<1> ph_reverse;
 
-
+     //calc parameters based on station and cscid
      const int  ph_zone_bnd1 =(station <= 1 && cscid <= 2) ? 41 :(station == 2 && cscid <= 2) ? 41 : (station == 2 && cscid >  2) ? 87 :(station == 3 && cscid >  2) ? 49 :(station == 4 && cscid >  2) ? 49 : 127;
-
      const int ph_zone_bnd2= ((station == 3 && cscid >  2) ? 87 : 127);
 
     if(station <= 1 && cscid >= 6)
@@ -105,20 +86,16 @@ void primitive::prim_conv1(
     else
     	ph_coverage=20;
 
-
-
 // is this chamber mounted in reverse direction?
     ph_reverse = (endcap == 0 && station >= 3) ? 1 : (endcap == 0x1 && station <  3) ? 1: 0;
 
 
-    			ap_uint<2> a_vl;
+  			ap_uint<2> a_vl;
+   			ap_uint<4> a_clctpat_r[seg_ch];
+   			ap_uint<7> a_th[seg_ch];
 
-
-    			ap_uint<4> a_clctpat_r[seg_ch];
-
-    			ap_uint<7> a_th[seg_ch];
-    			ap_uint<4> a_cscid=cscid;
-    			ap_uint<4> a_station=station;
+   			ap_uint<4> a_cscid=cscid;
+   			ap_uint<4> a_station=station;
 
 
 	 pc_id=  (cscid,station);
@@ -205,12 +182,6 @@ void primitive::prim_conv1(
 						fph[i] = params[0] + ph_tmp;
 						// set ph raw hits
 						a_ph_hit.set_bit(int((ph_tmp(bw_fph-1,5)) + (params[2](7,1))),true);
-				/*		if(station==2 && cscid==1 && quality[0]!=0){
-							cout<<"ph_tmp= "<<ph_tmp<<" params[2]="<<params[2]<<endl;
-							cout<<"index_bit= "<<((ph_tmp(bw_fph-1,5)) + (params[2](7,1)))<<endl;
-							cout<<"a_ph_hit= "<<a_ph_hit<<endl;
-									}*/
-
 					}
 
 	   		  wg = wiregroup[i];
@@ -243,32 +214,20 @@ void primitive::prim_conv1(
 
 			}
 			else{
-				th[i]=0; fph[i]=0; /*a_vl=0; a_phzvl=0;*/ clctpat_r[i]=0; /*a_ph_hit=0; a_th_hit=0;*/
+				th[i]=0; fph[i]=0;  clctpat_r[i]=0;
 		}
 	    		  			ph[i] = fph[i];
 
 			}
 
+
+//Assign outputs
 *me11a = 0;
-
-
 *phzvl=a_phzvl;
-
 *ph_hit= a_ph_hit;
 *th_hit = a_th_hit;
 *vl = a_vl;
 
-/*if(station==1 && cscid==6){
-	for(int i=0;i<5;i++){
-					for(int j=0;j<9;j++){
-					}
-
-			}
-}*/
-/*if(station==2 && cscid==1 && quality[0]!=0){
-	cout<<"a_phzvl= "<<a_phzvl<<" ph_zvl="<<*phzvl<<endl;
-	//cout<<"a_th_hit= "<<a_th_hit<<" th_hit="<<*th_hit<<endl;
-}*/
 
 		if(sel==0)
 			temp= params[addr];

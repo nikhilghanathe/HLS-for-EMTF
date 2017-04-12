@@ -1,7 +1,7 @@
 #include <ap_int.h>
 #include "spbits.h"
 #include "match_seg.h"
-using namespace std;
+
 
 
 void match_seg::find_segment_stn1(
@@ -89,14 +89,7 @@ void match_seg::find_segment_stn1(
 	 ap_uint<3> a_cid; // chamber id
 	 ap_uint<1> a_sid;
 
-/*for(int i=0;i<3;i++){
-	for(int j=0;j<3zone_cham;j++){
-		for(int k=0;k<2zone_seg;k++){
-			  cout<<hex<<"th_seg_p["<<i<<"]["<<j<<"]["<<k<<"]= "<<th_seg_p[i][j][k]<<hex<<endl;
-		}
 
-	}
-}*/
 
 	 ph_pat = ph_pat_p;
 	 	ph_pat_v = ph_pat_q_p != 0; // non-zero quality means valid pattern
@@ -149,6 +142,7 @@ void match_seg::find_segment_stn1(
 	 				ri = i;
 	 				rj = j;
 	 				rk = k;
+
 	 				// diffi variables carry track indexes
 	 				diffi0[i*3/*zone_cham*/*seg_ch + j*seg_ch + k] = (ri, rj, rk);
 	 			}

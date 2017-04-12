@@ -59,6 +59,8 @@ void sorter::sort1(ap_uint<bwr> ret_win[cnr],
 		win_l0[i]=ret_win[i];
 	}
 
+
+//build comparison tree
 /*****************FIRST LEVEL******************************/
 int ncomp=cnr;
 	ncomp=ncomp/4;
@@ -108,12 +110,6 @@ int ncomp=cnr;
 	win_l0[winid0]=0;
 	sort_label2:for(int h=0;h<cnr;h++)
 		ret_win_next[h]=win_l0[h];
-
-
-/*	for(int h=0;h<cnrex;h++){
-#pragma HLS UNROLL
-		ret_a[h]=a[h];
-	}*/
 
 
 }

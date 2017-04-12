@@ -2,7 +2,7 @@
 #include "spbits.h"
 #include "primitive.h"
 #include "sp.h"
-#include <ap_utils.h>
+
 
 void sp_c::prim_conv_sector(/*inputs*/
 		ap_uint<4> q[5][9][seg_ch],
@@ -35,8 +35,7 @@ void sp_c::prim_conv_sector(/*inputs*/
 		)
 
 		{
-//#pragma HLS LATENCY min=0 max=0
-//	ap_wait();
+
 #pragma HLS PROTOCOL fixed
 
 #pragma HLS INTERFACE ap_ctrl_none port=return
@@ -57,18 +56,6 @@ void sp_c::prim_conv_sector(/*inputs*/
 #pragma HLS ARRAY_PARTITION variable=th11 complete dim=0
 #pragma HLS ARRAY_PARTITION variable=ph complete dim=0
 
-
-/*
-#pragma HLS INTERFACE register port=ph
-#pragma HLS INTERFACE register port=th
-#pragma HLS INTERFACE register port=vl
-#pragma HLS INTERFACE register port=me11a
-#pragma HLS INTERFACE register port=phzvl
-#pragma HLS INTERFACE register port=cpatr
-#pragma HLS INTERFACE register port=ph_hit
-#pragma HLS INTERFACE register port=th_hit
-#pragma HLS INTERFACE register port=r_out
-*/
 
 
 	int i, j;
@@ -93,38 +80,10 @@ void sp_c::prim_conv_sector(/*inputs*/
 	// mux LUT outputs to r_out
 	int s, c;
 
-	//temp = 0x0;
-/*	for (s = 0; s < 5; s = s + 1) { // station loop
-#pragma HLS UNROLL
-
-		for (c = 0; c < 9; c = c + 1) // chamber loop
-				{
-#pragma HLS UNROLL
-			if (cs[s][c])
-				temp = temp | r_out_w[s][c];
-			*r_out = temp;
-		}
-	}*/
-
-
-
 	for (i = 0; i < 5; i = i + 1) {
 #pragma HLS UNROLL
 		we_w[i]= we ? cs[i] : ap_uint<9>(0);
 	}
-
-
-
-
-	/*for (i = 0; i < 5; i = i + 1) {
-		for(int j=0;j<9;j++)
-		std::cout<<"r_out_w["<<i<<"]["<<j<<"] = "<<r_out_w[i][j]<<std::endl;
-	}
-*/
-
-
-
-
 
 
 
@@ -134,10 +93,10 @@ void sp_c::prim_conv_sector(/*inputs*/
 		//station11
 		prim_conv_sector_label1: for (j = 0; j < 3/*3*/; j++) {
 #pragma HLS UNROLL
-			//!!!!!!!!!attention!!!!!!!!
-			 //* defparam pc11.station = i;
+
+			 //defparam pc11.station = i;
 			 //defparam pc11.cscid = j;
-			 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 			inst_prim_conv11[i][j].top_prim_conv11(q[i][j], wg[i][j], hstr[i][j],
 					cpat[i][j], i,//station
 					j,//cscid
@@ -148,16 +107,6 @@ void sp_c::prim_conv_sector(/*inputs*/
 
 		}
 	}
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -197,18 +146,6 @@ void sp_c::prim_conv_sector(/*inputs*/
 
 		}
 	}
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

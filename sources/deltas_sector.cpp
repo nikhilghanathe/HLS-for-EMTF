@@ -87,6 +87,8 @@ delta inst[4][3];
 			for (j = 0; j < 3; j = j+1){ // pattern loop
 
 #pragma HLS UNROLL
+				//deltas_m1 is function for me11a ==1
+				//this is done because of defparam
 					inst[i][j].deltas_m1
 					(
 					 (vi[i][j]),
@@ -123,6 +125,8 @@ delta inst[4][3];
  // zone loop
 				for (j = 0; j < 3; j = j+1){ // pattern loop
 #pragma HLS UNROLL
+					//deltas_m0 is for me11a==0
+					//this is done because of defparam
 					inst[i][j].deltas_m0
 					(
 					 (vi[i][j]),

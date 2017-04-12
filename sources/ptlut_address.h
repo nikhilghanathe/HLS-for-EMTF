@@ -69,77 +69,7 @@
 
 class ptlut{
 public:
-/*	 ap_uint<9> th_eta0 [128];
-     ap_uint<9> th_eta1 [128];
-     ap_uint<9> th_eta2 [128];
 
-    // phi compression LUTs
-     ap_uint<5> phi_5b_0 [512];
-     ap_uint<5> phi_5b_1 [512];
-     ap_uint<5> phi_5b_2 [512];
-
-     ap_uint<6> phi_6b_0 [512];
-     ap_uint<6> phi_6b_1 [512];
-     ap_uint<6> phi_6b_2 [512];
-
-     ap_uint<7> phi_7b_0 [512];
-     ap_uint<7> phi_7b_1 [512];
-     ap_uint<7> phi_7b_2 [512];
-
-    // fill theta to eta conversion LUT
-     ap_uint<3>  get_clct_A0 [16];
-     ap_uint<3>  get_clct_A1 [16];
-     ap_uint<3>  get_clct_A2 [16];
-     ap_uint<3>  get_clct_B0 [16];
-     ap_uint<3>  get_clct_B1 [16];
-     ap_uint<3>  get_clct_B2 [16];
-
-     ap_uint<2>  sign_lut_0 [8];
-     ap_uint<2>  sign_lut_1 [8];
-     ap_uint<2>  sign_lut_2 [8];*/
-
-/*void ptlut_init(){
-	 ap_uint<9> temp_th_eta [128]= init_gmt_eta;
-     ap_uint<5> temp_phi_5b [512]=init_5b_256Max;
-     ap_uint<6> temp_phi_6b [512]=init_6b_256Max;
-     ap_uint<7> temp_phi_7b [512]=init_7b_512Max;
-     ap_uint<3>  temp_get_clct[16]=clct_lut;
-     ap_uint<2>  temp_sign_lut [8]=sign_lut;
-
-     for(int i=0;i<128;i++){
-	th_eta0 [i]= temp_th_eta[i];
-     th_eta1 [i]= temp_th_eta[i];
-     th_eta2 [i]= temp_th_eta[i];
-     }
-for(int i=0;i<512;i++){
-    // phi compression LUTs
-       phi_5b_0 [i]=temp_phi_5b[i];
-       phi_5b_1 [i]=temp_phi_5b[i];
-       phi_5b_2 [i]=temp_phi_5b[i];
-
-       phi_6b_0 [i]=temp_phi_6b[i];
-       phi_6b_1 [i]=temp_phi_6b[i];
-       phi_6b_2 [i]=temp_phi_6b[i];
-
-         phi_7b_0 [i]=temp_phi_7b[i];
-         phi_7b_1 [i]=temp_phi_7b[i];
-         phi_7b_2 [i]=temp_phi_7b;
-}
-for(int i=0;i<16;i++){
-    // fill theta to eta conversion LUT
-      get_clct_A0 [i]=temp_get_clct[i];
-      get_clct_A1 [i]=temp_get_clct[i];
-      get_clct_A2 [i]=temp_get_clct[i];
-      get_clct_B0 [i]=temp_get_clct[i];
-      get_clct_B1 [i]=temp_get_clct[i];
-      get_clct_B2 [i]=temp_get_clct[i];
-}
-for(int i=0;i<512;i++){
-       sign_lut_0 [i]=temp_sign_lut[i];
-       sign_lut_1 [i]=temp_sign_lut[i];
-       sign_lut_2 [i]=temp_sign_lut[i];
-}
-}*/
     void ptlut_address_actual (
     		// precise phi and theta of best tracks
     		// [best_track_num]
@@ -198,6 +128,8 @@ for(int i=0;i<512;i++){
 		//default
 		a_get_d_th = 0x7;
 
+
+		//split into 2 different if-else constructs for better timing
         if(sign==0 ){
         if (dth <= 0x1 )
           a_get_d_th = 0x4;

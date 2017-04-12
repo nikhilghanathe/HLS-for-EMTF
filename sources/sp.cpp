@@ -1,12 +1,10 @@
 #include <ap_int.h>
 #include "spbits.h"
-///#include "primitive.h"
 #include "sp.h"
 #include <fstream>
 #include <iostream>
 #include <ap_utils.h>
-//#include <systemc.h>
-using namespace std;
+
 
  void sp(	ap_uint<4>         q  [5][9][seg_ch],
 	    ap_uint<bw_wg>   wg   [5][9][seg_ch],
@@ -129,9 +127,9 @@ using namespace std;
 
 {
 
- // this is for generating registers at outputs
 
-#pragma HLS INTERFACE ap_ctrl_none port=return //this is for registers at input
+
+#pragma HLS INTERFACE ap_ctrl_none port=return
 
 #pragma HLS PIPELINE II=1
 #pragma HLS ARRAY_PARTITION variable=cpat complete dim=0
@@ -140,6 +138,8 @@ using namespace std;
 #pragma HLS ARRAY_PARTITION variable=q dim=0
 #pragma HLS ARRAY_PARTITION variable=pcs_cs complete dim=0
 
+
+	//stable ports avoid input registering
 #pragma HLS INTERFACE ap_stable port=q
 #pragma HLS INTERFACE ap_stable port=hstr
 #pragma HLS INTERFACE ap_stable port=cpat
@@ -248,22 +248,25 @@ using namespace std;
 ap_uint<3> drifttime=3;
 ap_uint<3> ph_foldn=0;
 ap_uint<bw_th> th_window=4;
- static sp_c pcs;
-	 static sp_c zns;
-	static  sp_c exts;
- static sp_c phps;
- 	static sp_c srts;
- 	 sp_c cdl;
- 	static sp_c mphseg;
- 	static sp_c ds;
- 	static sp_c bt;
- 	static sp_c pta;
+
+static sp_c pcs;
+static sp_c zns;
+static  sp_c exts;
+static sp_c phps;
+static sp_c srts;
+sp_c cdl;
+static sp_c mphseg;
+static sp_c ds;
+static sp_c bt;
+static sp_c pta;
 
 /*************************************************************/
-//#pragma HLS PROTOCOL fixed
+
  	{
- //	#pragma HLS LATENCY min=0 max=0
+//fixed protocol makes latency increase by 1
 //#pragma HLS PROTOCOL fixed
+
+	//Primitive Conversion
 		pcs.prim_conv_sector(
 				(q),
 				(wg),
@@ -290,17 +293,18 @@ ap_uint<bw_th> th_window=4;
 				 );
 
  	}
- //	ap_wait();
 
 
-/*********************************************************/
+
+
+/***********************START OF FLOATING REGION**********************************/
 
  	{
 
-
+ 		//floating protocol makes region execute in parallel
 #pragma HLS PROTOCOL floating
  		{
-//#pragma HLS PROTOCOL fixed
+ 			//Delay module for outputs from Primitive Conversion
  			cdl.co_ord_delay
 
 			(
@@ -320,33 +324,26 @@ ap_uint<bw_th> th_window=4;
 			 dummy
 			 );
  		}
-//ap_wait_n(4);
 
 
 
 
-
-// 	ap_wait();
  		{
-//#pragma HLS PROTOCOL fixed
-
  	{
 
-//#pragma HLS PROTOCOL fixed
-
+ 		//zone hit
 		zns.zones(phzvl_t,
 				  ph_hit_t,
 				  ph_zone_t
 			);
 
-		ap_wait();
+
  	}
 
 
 /*****************************************************************/
  {
- //		#pragma HLS LATENCY min=0 max=0
-//#pragma HLS PROTOCOL fixed
+	 //zone hit extender module
 		exts.extend_sector(
 				ph_zone_t,
 				ph_ext_t,
@@ -354,36 +351,29 @@ ap_uint<bw_th> th_window=4;
 
  	}
 
- 	ap_wait_n(3);
 /*****************************************************************/
  	{
-//#pragma HLS LATENCY min=0 max=0
- //		#pragma HLS PROTOCOL fixed
+ 		//pattern selection module
 		phps.ph_pattern_sector(ph_ext_t,
 				drifttime,
 				ph_foldn,
 				ph_rank_t);
 
-		ap_wait();
  	}
- //	ap_wait();
 /***********************************************************************************/
 
  	{
-//#pragma HLS LATENCY min=0 max=0
-//#pragma HLS PROTOCOL fixed
+ 		//sort sector module selects the best three tracks
 		srts.sort_sector(ph_rank_t,
 						ph_num_t,
 						ph_q_t);
-	 	//ap_ap_wait();
-		ap_wait();
  	}
  		}
 
  	}
 
 
-/***********************************************************************************/
+/***********************END OF FLOATING REGION************************************************************/
 
 
 
@@ -396,6 +386,7 @@ ap_uint<bw_th> th_window=4;
 
 #pragma HLS PROTOCOL fixed
 
+	 //Segments matching module
  	mphseg.match_ph_seg(
  		     ph_num_t,
  			 ph_q_t,
@@ -434,8 +425,10 @@ ap_uint<bw_th> th_window=4;
 
 /**************************************/
 	{
+		//fixed protocol ensures no overlap of this function with any other
 #pragma HLS PROTOCOL fixed
 
+		//delta phi and delta theta calc module
 	ds.deltas_sector(
 	 patt_ph_vi,
 	 patt_ph_hi,
@@ -468,6 +461,8 @@ ap_uint<bw_th> th_window=4;
 
 	{
 		#pragma HLS PROTOCOL fixed
+
+		//selction of best tracks module
 		bt.best_tracks(
 						phi_t ,
 						theta_t ,
@@ -540,6 +535,8 @@ ap_uint<bw_th> th_window=4;
 
 	{
 #pragma HLS PROTOCOL fixed
+
+		//ptlut assignment module
 	    pta.ptlut_address
 	    (
 	        (bt_phi_t),

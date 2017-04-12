@@ -71,6 +71,7 @@ void delta::best_delta_seg1(
 		if (a_dvl((i*2)+2-1,i*2) == 0x0) cmp1[i] = nodiff; // if one of the inputs invalid, output = max
 	}
 
+
 	// second comparator stage
 	best_delta_label1:for (i = 0; i < nseg/4; i = i+1){
 #pragma HLS UNROLL
@@ -110,7 +111,7 @@ void delta::best_delta_seg1(
 		a_bnm = num2[0];
 	}
 
-			// output valid if one or more inputs are valid
+	// output valid if one or more inputs are valid
 	a_bvl =a_dvl.or_reduce();
 
 *bth=a_bth;

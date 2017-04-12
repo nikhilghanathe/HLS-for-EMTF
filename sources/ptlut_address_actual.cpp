@@ -1,8 +1,7 @@
 #include <ap_int.h>
 #include "spbits.h"
 #include "ptlut_address.h"
-using namespace std;
-//#define concat (mode[i],bt_theta[i](6,2),clctA,get_d_th(bt_delta_th[i][4], bt_sign_th[i][4]),bt_sign_ph[i][5],bt_sign_ph[i][3],dphiC,dphiA)
+
 void ptlut::ptlut_address_actual(
 		// precise phi and theta of best tracks
 		// [best_track_num]
@@ -456,7 +455,7 @@ void ptlut::ptlut_address_actual(
                                   bt_stA = 1;
                                   chA = bt_ci[i][1];
                               }
-      //                        chA = bt_ci[i][stA];
+
 
                               // limit the maximum LUT indexes
                               dphi_5bits = bt_delta_ph[i][dB] > 511 ? ap_uint<9>(511) :ap_uint<9>( bt_delta_ph[i][dB]);
@@ -503,7 +502,7 @@ void ptlut::ptlut_address_actual(
                                   bt_stA = 1;
                                   chA = bt_ci[i][1];
                               }
-      //                        chA = bt_ci[i][stA];
+
 
                               // limit the maximum LUT indexes
                               dphi_5bits = bt_delta_ph[i][dB] > 511 ? ap_uint<9>(511) :ap_uint<9>( bt_delta_ph[i][dB]);

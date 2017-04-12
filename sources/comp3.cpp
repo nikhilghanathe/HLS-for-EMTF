@@ -10,6 +10,9 @@ ap_uint<2> match_seg::comp3(ap_uint<5> a,ap_uint<5> b,ap_uint<5> c)
  ap_uint<3> r;
  ap_uint<2> a_comp3;
 
+ //use multiple if-else instead of nested if-else to enable parallel processing
+ //nested if-else results in priority encoder which is bad for timing critical designs
+
 	if(a <= b)
 		r[2] =1;
 	else

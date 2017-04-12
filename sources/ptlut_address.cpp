@@ -3,7 +3,7 @@
 #include "ptlut_address.h"
 #include "sp.h"
 
-
+//wrapper function for ptlut
 void sp_c::ptlut_address(
 		// precise phi and theta of best tracks
 		// [best_track_num]

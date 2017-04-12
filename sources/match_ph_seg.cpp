@@ -2,7 +2,6 @@
 #include "spbits.h"
 #include "match_seg.h"
 #include "sp.h"
-using namespace std;
 
 
 
@@ -58,6 +57,7 @@ void sp_c::match_ph_seg(
 
 	ap_uint<4> 		si_tmp [4][3];
 #pragma HLS ARRAY_RESHAPE variable=si_tmp complete dim=0
+	//array of objects to achieve concurrency
 	static match_seg  fs_00[3],fs_01[3],fs_02[3] ,fs_03[3] ,fs_10[3] ,fs_11[3] ,fs_12[3] ,fs_13[3] ,fs_20[3] ,fs_21[3],
 				fs_22[3] ,	fs_23[3] , fs_30[3] ,fs_31[3] ,fs_32[3] ,fs_33[3] ;
 
@@ -380,7 +380,6 @@ void sp_c::match_ph_seg(
 
 
 						th_seg___z0_s1[i][j][k] = th[i][2][j][k]; // 3
-					//	cout<<"th_seg___z0_s1["<<i<<"]["<<j<<"]["<<k<<"] = "<<th_seg___z0_s1[i][j][k]<<hex<<endl;
 						th_seg___z0_s2[i][j][k] = th[i][3][j][k]; // 4
 						th_seg___z0_s3[i][j][k] = th[i][4][j][k]; // 5
 
@@ -406,7 +405,7 @@ match_ph_seg_label110:for(int ki=0;ki<3;ki++)
 {
 #pragma HLS UNROLL
 
-	//if(ki==0)fs_00[0].pr=1;
+
 	fs_00[ki].find_segment_st1(ph_num[0][ki],ph_q[0][ki],
 					ph_seg___z0_s0, ph_seg_v_z0_s0,
 					th_seg___z0_s0, cpat_seg___z0_s0,
@@ -415,14 +414,14 @@ match_ph_seg_label110:for(int ki=0;ki<3;ki++)
 					th_match11[0][ki] , &cpat_match[0][ki][0]);
 	si_tmp[0][ki][0]=a_si;
 
-	//fs_01.pr=1;
+
 	fs_01[ki].find_segment_stn1(ph_num[0][ki],ph_q[0][ki],
 					ph_seg___z0_s1, ph_seg_v_z0_s1,
 					th_seg___z0_s1, cpat_seg___z0_s1,
 					&vi[0][ki][1], &hi[0][ki][1],
 					&ci[0][ki][1], &a_si, &ph_match[0][ki][1],
 					th_match[0][ki][1] , &cpat_match[0][ki][1]);
-	//fs_01.pr=0;
+
 	si_tmp[0][ki][1]=a_si;
 	fs_02[ki].find_segment_stn1(ph_num[0][ki],ph_q[0][ki],
 					ph_seg___z0_s2, ph_seg_v_z0_s2,
@@ -482,7 +481,7 @@ match_ph_seg_label110:for(int ki=0;ki<3;ki++)
 					&ci[2][ki][0], &a_si, &ph_match[2][ki][0],
 					th_match[2][ki][0] , &cpat_match[2][ki][0]);
 	si_tmp[2][ki][0]=a_si;
-	//if(ki==1)fs_21[1].pr=1;
+
 	fs_21[ki].find_segment_n1_62(ph_num[2][ki],ph_q[2][ki],
 					ph_seg___z2_s1, ph_seg_v_z2_s1,
 					th_seg___z2_s1, cpat_seg___z2_s1,
@@ -490,7 +489,7 @@ match_ph_seg_label110:for(int ki=0;ki<3;ki++)
 					&ci[2][ki][1], &a_si, &ph_match[2][ki][1],
 					th_match[2][ki][1] , &cpat_match[2][ki][1]);
 	si_tmp[2][ki][1]=a_si;
-	//fs_21[1].pr=0;
+
 	fs_22[ki].find_segment_n1_62(ph_num[2][ki],ph_q[2][ki],
 					ph_seg___z2_s2, ph_seg_v_z2_s2,
 					th_seg___z2_s2, cpat_seg___z2_s2,

@@ -9,15 +9,6 @@ public:
 	ap_uint<6> th_mem[th_mem_sz];
 	ap_uint<4> th_corr_mem[th_corr_mem_sz];
 
-	//ap_uint<1> ph_reverse;
-	/*  ap_uint<16> ph_coverage;
-	  int ph_zone_bnd1,ph_zone_bnd2;
-	  ap_uint<16>th_coverage;*/
-
-
-
-
-
 	void prim_conv11(
 					ap_uint<4> quality[seg_ch],
 					ap_uint<bw_wg> wiregroup[seg_ch],

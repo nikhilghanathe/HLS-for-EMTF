@@ -1,7 +1,8 @@
 #include <ap_int.h>
 #include "best_track.h"
-using namespace std;
-//ap_uint<4> zero_count(ap_uint<8> larger);
+
+
+//optimized implementation to count number of zeroes in the 36-bit input
 void best_track::zero_count_36bits(ap_uint<36> larger, ap_uint<6> *sum){
 	ap_uint<6> temp;
 #pragma HLS INLINE off

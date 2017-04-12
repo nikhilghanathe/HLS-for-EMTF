@@ -6,19 +6,12 @@
 #define num_levels 4
 
 
-/*
-void best3(ap_uint<bwr> rank_ex[cnrex],
-		ap_uint<bwr> winner[3],
-		ap_uint<bpow+1> winid[3]);
-*/
-
 void sp_c::sort_sector(ap_uint<bwr> ph_rank[4][ph_raw_w],
 				 ap_uint<bpow+1> ph_num[4][3],
 				 ap_uint<bwr> ph_q[4][3]
 		)
 {
-	//ap_wait();
-//
+
 #pragma HLS PROTOCOL fixed
 #pragma HLS LATENCY min=1 max=1
 #pragma HLS INLINE off
@@ -30,7 +23,6 @@ void sp_c::sort_sector(ap_uint<bwr> ph_rank[4][ph_raw_w],
 
 sorter inst[4];
 {
-//#pragma HLS LATENCY min=1 max=1
 #pragma HLS PROTOCOL fixed
 
 //Select best3 from each of the four zones
@@ -42,13 +34,8 @@ sorter inst[4];
 				);
 	}
 
-/*	{
-#pragma HLS PROTOCOL fixed
-#pragma HLS LATENCY min=0 max=0
-	ap_wait_n(0);
-	}*/
-	//ap_wait_n(2);
+
 }
-//ap_wait();
+
 
 }

@@ -5,6 +5,7 @@
 
 class ph_pattern{
 	public:
+	//member bx will retain value from previous function calls because of the use of static object
 		ap_uint<3> bx[red_pat_w_st1];
 		ph_pattern(void)
 		{

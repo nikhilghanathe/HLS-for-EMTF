@@ -9,6 +9,8 @@
 class best_track{
 public:
 
+
+	//function to count shared isegment and jsegment
 	ap_uint<3> count_shsegs(ap_uint<2> ai[5],ap_uint<4> bi[5],ap_uint<5> ci,ap_uint<2> di[5],
 			ap_uint<2> aj[5],ap_uint<4> bj[5],ap_uint<5> cj,ap_uint<2> dj[5]){
 	 #pragma HLS INLINE off
@@ -22,6 +24,8 @@ public:
 		ap_uint<2> aor[5];
 		ap_uint<4> comp[5];
 		ap_uint<3> sh_segs=0;
+
+		//xor operation result is 0 when both operands are equal
 				for(int i=0;i<5; i++){
 					#pragma HLS UNROLL
 					bxor[i]=bi[i] ^ bj[i];
@@ -43,36 +47,44 @@ public:
 	void best_tracks_actual(
 			ap_uint<bw_fph>  phi [4][3],
 			ap_uint<bw_th>  theta [4][3],
-				// [zone][pattern_num][station]
+
+			// [zone][pattern_num][station]
 			ap_uint<4>	cpattern [4][3][4],
-				// ph and th deltas from best stations
-				// [zone][pattern_num], last index: 0=12, 1=13, 2=14, 3=23, 4=24, 5=34
+
+			// ph and th deltas from best stations
+			// [zone][pattern_num], last index: 0=12, 1=13, 2=14, 3=23, 4=24, 5=34
 			ap_uint<bw_fph>	  delta_ph [4][3][6],
 			ap_uint<bw_th>	   delta_th [4][3][6],
 			ap_uint<6>	  	   sign_ph[4][3],
 			ap_uint<6>	 	   sign_th[4][3],
-				// updated ranks [zone][pattern_num]
+
+			// updated ranks [zone][pattern_num]
 			ap_uint<bwr+1>	   rank [4][3],
-				//[zone][pattern_num][station 0-3]
+
+			//[zone][pattern_num][station 0-3]
 			ap_uint<seg_ch>	  vi [4][3][4], // valid
 			ap_uint<2>	  	   hi [4][3][4], // bx index
 			ap_uint<3>		   ci [4][3][4], // chamber
 			ap_uint<4>	  	   si [4][3], // segment
 
-				// precise phi and theta of best tracks
-				// [best_track_num]
+			// precise phi and theta of best tracks
+			// [best_track_num]
 			ap_uint<bw_fph>	    bt_phi [3],
 			ap_uint<bw_th>	   	bt_theta [3],
-				// [best_track_num][station]
+
+			// [best_track_num][station]
 			ap_uint<4>	   		bt_cpattern [3][4],
-				// ph and th deltas from best stations
-				// [best_track_num], last index: 0=12, 1=13, 2=14, 3=23, 4=24, 5=34
+
+			// ph and th deltas from best stations
+			// [best_track_num], last index: 0=12, 1=13, 2=14, 3=23, 4=24, 5=34
 			ap_uint<bw_fph>  bt_delta_ph [3][6],
 			ap_uint<bw_th> 	bt_delta_th [3][6],
 			ap_uint<6>    	bt_sign_ph[3],
 			ap_uint<6>	  	bt_sign_th[3],
+
 			// ranks [best_track_num]
 			ap_uint<bwr+1> 		bt_rank [3],
+
 			//[best_track_num][station 0-3]
 			ap_uint<seg_ch>	   bt_vi [3][5], // valid
 			ap_uint<2>	   		bt_hi [3][5], // bx index

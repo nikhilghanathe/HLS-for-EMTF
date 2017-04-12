@@ -3,13 +3,6 @@
 #include "match_seg.h"
 
 
-using namespace std;
-
-
-
-
-
-
 
 void match_seg::find_segment_st1(
 		 ap_uint<bpow+1> ph_pat_p, // ph detected in pattern
@@ -52,7 +45,6 @@ void match_seg::find_segment_st1(
 
 
 
-//cout<<"ph_pat_p= "<<ph_pat_p<<endl;
 
 	int i,j,k,di;
 	ap_uint<bpow+1> ph_pat; // ph detected in pattern
@@ -153,6 +145,7 @@ void match_seg::find_segment_st1(
 				ri = i;
 				rj = j;
 				rk = k;
+
 				// diffi variables carry track indexes
 				diffi0[(i*zone_cham*seg_ch) + (j*seg_ch) + k] = (ri, rj, rk);
 			}
@@ -196,8 +189,6 @@ void match_seg::find_segment_st1(
 						break;
 				default: break;
 				}
-	//	if(this->pr==1)
-	//			cout<<"diffi2["<<i<<"]= "<<diffi2[i]<<endl;
 			}
 
 
@@ -215,8 +206,7 @@ void match_seg::find_segment_st1(
 						break;
 				default: break;
 				}
-//				if(this->pr==1)
-//					cout<<" diffi3["<<i<<"]= "<<diffi3[i]<<endl;
+
 			}
 			// last stage depends on number of input segments
 			if (tot_diff == 36)

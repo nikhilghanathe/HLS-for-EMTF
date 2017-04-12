@@ -3,35 +3,6 @@
 #include "zones.h"
 
 
-
-
-
-/*
-void zones()
-{
-std::cout<<"ph_raw_w: "<<ph_raw_w<<std::endl;
-ap_uint<4> phzvl[5][9];
-            phzvl[0][0]=0x8;
-std::cout<<"phzvl: "<<phzvl[0][0]<<std::hex<<std::endl;
-if(phzvl[0][0] & 0x1)
-	std::cout<<" HI"<<std::endl;
-else
-	std::cout<<"BYE "<<std::endl;
-
-ap_uint<4> ret=0x1;
-phzvl[0][0](2,0)=phzvl[0][0](2,0) | ret;
-std::cout<<"phzvl after : "<<phzvl[0][0]<<std::hex<<std::endl;
-
-
-}
-*/
-
-using namespace std;
-
-
-
-
-
 void zones_class::zones_actual(
 		 ap_uint<3> phzvl[5][9],
 		 ap_uint<ph_hit_w> ph_hit[5][9],
@@ -86,6 +57,8 @@ void zones_class::zones_actual(
 
 	                if (a_phzvl[4][2][0]) a_ph_zone[0][4]( 76+ph_hit_w20 , 76) =a_ph_zone[0][4](   76+ph_hit_w20 , 76) |  a_ph_hit[4][2];
 
+
+
 	                // ph zone 1 stations 1234
 	        //      a_ph_zone[1][1] = a_ph_zone[0][1]; // data taken from the same chambers
 	        //      a_ph_zone[1][2] = a_ph_zone[0][2];
@@ -122,30 +95,11 @@ void zones_class::zones_actual(
 	                // ph zone 2 stations 1234
 	        a_ph_zone[2][1] = 0;
 	                if (a_phzvl[0][3][0]) a_ph_zone[2][1](2+ph_hit_w10-1 , 2) =a_ph_zone[2][1](    2+ph_hit_w10-1 , 2) |  a_ph_hit[0][3];
-	                for(int j=0;j<5;j++){
-	               	                	std::cout<<"1a_ph_zone["<<2<<"]["<<j<<"]= "<<a_ph_zone[2][j]<<std::hex<<std::endl;
-	               	                	                       	        	}
 	                if (a_phzvl[0][4][0]) a_ph_zone[2][1]( 21+ph_hit_w10-1 , 21) =a_ph_zone[2][1](    21+ph_hit_w10-1 , 21) |  a_ph_hit[0][4];
-	                for(int j=0;j<5;j++)
-	                	               	                	std::cout<<"2a_ph_zone["<<2<<"]["<<j<<"]= "<<a_ph_zone[2][j]<<std::hex<<std::endl;
-
 	                if (a_phzvl[0][5][0]) a_ph_zone[2][1]( 39+ph_hit_w10-1,39) =  a_ph_hit[0][5] | a_ph_zone[2][1](   39+ph_hit_w10-1,39) ;
-	                for(int j=0;j<5;j++)
-	                	               	                	std::cout<<"3a_ph_zone["<<2<<"]["<<j<<"]= "<<a_ph_zone[2][j]<<std::hex<<std::endl;
-
 	                if (a_phzvl[1][3][0]) a_ph_zone[2][1]( 58+ph_hit_w10-1 , 58) = a_ph_zone[2][1](   58+ph_hit_w10-1 , 58) | a_ph_hit[1][3];
-	                for(int j=0;j<5;j++)
-	                	               	                	std::cout<<"4a_ph_zone["<<2<<"]["<<j<<"]= "<<a_ph_zone[2][j]<<std::hex<<std::endl;
-
 	                if (a_phzvl[1][4][0]) a_ph_zone[2][1]( 77+ph_hit_w10-1 , 77) = a_ph_zone[2][1](   77+ph_hit_w10-1 , 77) | a_ph_hit[1][4];
-	                for(int j=0;j<5;j++)
-	                	               	                	std::cout<<"5a_ph_zone["<<2<<"]["<<j<<"]= "<<a_ph_zone[2][j]<<std::hex<<std::endl;
-
 	                if (a_phzvl[1][5][0]) a_ph_zone[2][1]( 96+ph_hit_w10-1, 96) = a_ph_zone[2][1](  96+ph_hit_w10-1, 96) | a_ph_hit[1][5];
-	                for(int j=0;j<5;j++)
-	                	               	                	std::cout<<"6a_ph_zone["<<2<<"]["<<j<<"]= "<<a_ph_zone[2][j]<<std::hex<<std::endl;
-
-
 
 	        a_ph_zone[2][2] = 0;
 	                if (a_phzvl[2][3][0]) a_ph_zone[2][2](   2+ph_hit_w10-1 , 2) = a_ph_zone[2][2](   2+ph_hit_w10-1 , 2) | a_ph_hit[2][3];
@@ -154,6 +108,7 @@ void zones_class::zones_actual(
 	                if (a_phzvl[2][6][0]) a_ph_zone[2][2]( 58+ph_hit_w10-1 , 58) = a_ph_zone[2][2](   58+ph_hit_w10-1 , 58) | a_ph_hit[2][6];
 	                if (a_phzvl[2][7][0]) a_ph_zone[2][2]( 77+ph_hit_w10-1 , 77) = a_ph_zone[2][2](   77+ph_hit_w10-1 , 77) | a_ph_hit[2][7];
 	                if (a_phzvl[2][8][0]) a_ph_zone[2][2]( 95+ph_hit_w10-1 , 95) = a_ph_zone[2][2](   95+ph_hit_w10-1 , 95) | a_ph_hit[2][8];
+
 
 	        //      a_ph_zone[2][3] = a_ph_zone[1][3]; // data taken from the same chambers
 	        //      a_ph_zone[2][4] = a_ph_zone[1][4];
@@ -173,22 +128,7 @@ void zones_class::zones_actual(
 	                if (a_phzvl[4][7][1]) a_ph_zone[2][4]( 76+ph_hit_w10-1, 76) = a_ph_zone[2][4](   76+ph_hit_w10-1, 76) | a_ph_hit[4][7];
 	                if (a_phzvl[4][8][1]) a_ph_zone[2][4]( 95+ph_hit_w10-1 , 95) = a_ph_zone[2][4](   95+ph_hit_w10-1 , 95) | a_ph_hit[4][8];
 
-	                // ph zone 3 stations 1234
-
-
-	                for(int j=0;j<5;j++){
-	                	std::cout<<"a_ph_zone["<<2<<"]["<<j<<"]= "<<a_ph_zone[2][j]<<std::hex<<std::endl;
-	                	std::cout<<"a_phzvl["<<0<<"]["<<3<<"]= "<<a_phzvl[0][3]<<std::hex<<std::endl;
-	                	std::cout<<"a_phzvl["<<0<<"]["<<4<<"]= "<<a_phzvl[0][4]<<std::hex<<std::endl;
-	                	std::cout<<"a_phzvl["<<0<<"]["<<5<<"]= "<<a_phzvl[0][5]<<std::hex<<std::endl;
-	                	std::cout<<"a_phzvl["<<1<<"]["<<3<<"]= "<<a_phzvl[1][3]<<std::hex<<std::endl;
-	                	std::cout<<"a_phzvl["<<1<<"]["<<4<<"]= "<<a_phzvl[1][4]<<std::hex<<std::endl;
-	                	std::cout<<"a_phzvl["<<1<<"]["<<5<<"]= "<<a_phzvl[1][5]<<std::hex<<std::endl;
-
-
-	                	                       	        	}
-
-
+	        // ph zone 3 stations 1234
 	        a_ph_zone[3][1] = 0;
 	                a_ph_zone[3][1](  4+ph_hit_w10-1, 4) = a_ph_zone[3][1](    4+ph_hit_w10-1, 4) | a_ph_hit[0][6];
 	                a_ph_zone[3][1](  23+ph_hit_w10-1, 23) = a_ph_zone[3][1](   23+ph_hit_w10-1, 23) | a_ph_hit[0][7];
@@ -196,10 +136,6 @@ void zones_class::zones_actual(
 	                a_ph_zone[3][1](  61+ph_hit_w10-1, 61) = a_ph_zone[3][1](   61+ph_hit_w10-1, 61) | a_ph_hit[1][6];
 	                a_ph_zone[3][1](  79+ph_hit_w10-1, 79) = a_ph_zone[3][1](   79+ph_hit_w10-1, 79) |  a_ph_hit[1][7];
 	                a_ph_zone[3][1](  98+ph_hit_w10-1, 98) = a_ph_zone[3][1](   98+ph_hit_w10-1, 98) | a_ph_hit[1][8];
-
-	               /* a_ph_zone[3][1](  98+ph_hit_w10-1, 98)=0x1FFFFF;
-	               cout<<"!!!!!!!!!"<<a_ph_zone[3][1](  98+ph_hit_w10-1, 98)<<"     "<<endl;
-*/
 
 	        //      a_ph_zone[3][2] = a_ph_zone[2][2]; // data taken from the same chambers
 	        //      a_ph_zone[3][3] = a_ph_zone[2][3];
@@ -220,12 +156,6 @@ void zones_class::zones_actual(
 	                if (a_phzvl[3][8][2]) a_ph_zone[3][3]( 95+ph_hit_w10-1 , 95) = a_ph_zone[3][3](   95+ph_hit_w10-1 , 95) | a_ph_hit[3][8];
 
 	                a_ph_zone[3][4] = 0; // no st 4 in this zone
-
-
-
-
-
-
 
 
 	     /*********assign output******/

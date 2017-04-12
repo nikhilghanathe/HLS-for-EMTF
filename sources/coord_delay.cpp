@@ -1,7 +1,7 @@
 #include <ap_int.h>
 #include "spbits.h"
 #include "sp.h"
-using namespace std;
+
 
 //CONSTRUCT A DUMMY DELAY LINE FOR FORCING SYNTHESIS OF A SHIFT REGISTER
 class co_ord{
@@ -21,18 +21,6 @@ public:
 	 ap_uint<4> t_cpati_1[5/*Delay*/][5][9][seg_ch];
 
 	 ap_uint<4> t_dummy_1[5/*Delay*/][5][9][seg_ch];
-
-	/*** SECOND BUNCH CROSSING *****/
-	ap_uint<bw_fph> a_phi_2[5][9][seg_ch];
-
-	ap_uint<bw_th> a_th11i_2[2][3][th_ch11];
-	ap_uint<bw_th> a_thi_2[5][9][seg_ch];
-
-	ap_uint<seg_ch> a_vli_2[5][9];
-
-	ap_uint<seg_ch> a_me11ai_2[2][3];
-
-	ap_uint<4> a_cpati_2[5][9][seg_ch];
 
 
 
@@ -57,6 +45,7 @@ public:
 };
 
 
+//wrapper function
 void sp_c::co_ord_delay(ap_uint<bw_fph> phi[5][9][seg_ch],
 				ap_uint<bw_th> th11i[2][3][th_ch11],
 				ap_uint<bw_th> thi[5][9][seg_ch],
@@ -89,6 +78,8 @@ void sp_c::co_ord_delay(ap_uint<bw_fph> phi[5][9][seg_ch],
 #pragma HLS PIPELINE II=1
 #pragma HLS INTERFACE ap_ctrl_none port=return
 
+
+	//static keyword enables persistence
 static co_ord inst;
 
 	inst.co_ord_delay_actual(phi,
@@ -143,7 +134,8 @@ void co_ord::co_ord_delay_actual(ap_uint<bw_fph> phi[5][9][seg_ch],
 #pragma HLS INTERFACE ap_ctrl_none port=return
 #pragma HLS INLINE off
 #pragma HLS PIPELINE II=1
-//#pragma HLS DEPENDENCE false
+
+
 	/*** FIRST BUNCH CROSSING *****/
 	volatile ap_uint<bw_fph> a_phi_1[6/*Delay*/][5][9][seg_ch];
 #pragma HLS ARRAY_PARTITION variable=a_phi_1 complete dim=0
@@ -197,30 +189,15 @@ void co_ord::co_ord_delay_actual(ap_uint<bw_fph> phi[5][9][seg_ch],
 #pragma HLS ARRAY_PARTITION variable=t_dummy complete dim=0
 
 
-/*
-	** SECOND BUNCH CROSSING ****
-	ap_uint<bw_fph> a_phi_2[5][9][seg_ch];
-#pragma HLS ARRAY_PARTITION variable=a_phi_2 complete dim=0
-	ap_uint<bw_th> a_th11i_2[2][3][th_ch11];
-	ap_uint<bw_th> a_thi_2[5][9][seg_ch];
-#pragma HLS ARRAY_PARTITION variable=a_thi_2 complete dim=0
-	ap_uint<seg_ch> a_vli_2[5][9];
-#pragma HLS ARRAY_PARTITION variable=a_vli_2 complete dim=0
-	ap_uint<seg_ch> a_me11ai_2[2][3];
-#pragma HLS ARRAY_PARTITION variable=a_me11ai_2 complete dim=0
-	ap_uint<4> a_cpati_2[5][9][seg_ch];
-#pragma HLS ARRAY_PARTITION variable=a_cpati_2 complete dim=0
-
-*/
 
 
-
-co_ord_delay_label21://while(en==1)
+co_ord_delay_label21:
 {
 #pragma HLS PIPELINE II=1
 
-//1
+
 /***********************pho=phi*****************************************/
+//load previous bunch crossing outputs
 	for(int p=0;p<4;p++){
 			#pragma HLS unroll
 	for(int i=0; i<5;i++){
@@ -240,7 +217,7 @@ co_ord_delay_label21://while(en==1)
 			for(int j=0;j<9;j++){
 				for(int k=0;k<seg_ch;k++){
 					t_phi[4][i][j][k]=phi[i][j][k];
-			//		cout<<"phi_c["<<dec<<i<<"]["<<j<<"]["<<k<<"]= "<<hex<<phi[i][j][k]<<endl;
+
 						}
 			}
 		}
@@ -248,8 +225,7 @@ co_ord_delay_label21://while(en==1)
 //Shift reg
 	for(int p=0;p<4;p++){
 		#pragma HLS unroll
-		/*a_phi_1[p-1]=a_phi_1[p];*/
-		for(int i=0; i<5;i++){
+			for(int i=0; i<5;i++){
 	#pragma HLS UNROLL
 			for(int j=0;j<9;j++){
 				for(int k=0;k<seg_ch;k++){
@@ -260,20 +236,6 @@ co_ord_delay_label21://while(en==1)
 				}
 		}
 
-/*
-	for(int p=0;p<4;p++){
-			#pragma HLS unroll
-	for(int i=0; i<5;i++){
-#pragma HLS UNROLL
-		for(int j=0;j<9;j++){
-			for(int k=0;k<seg_ch;k++){
-				t_phi_1[p][i][j][k]=a_phi_1[p+1][i][j][k];
-
-					}
-				}
-			}
-}
-*/
 
 
 
@@ -344,7 +306,6 @@ for(int i=0; i<2;i++){
 //Shift reg
 for(int p=0;p<4;p++){
 	#pragma HLS unroll
-	/*a_phi_1[p-1]=a_phi_1[p];*/
 	for(int i=0; i<2;i++){
 #pragma HLS UNROLL
 		for(int j=0;j<3;j++){
@@ -356,18 +317,6 @@ for(int p=0;p<4;p++){
 			}
 	}
 
-/*for(int p=0;p<4;p++){
-		#pragma HLS unroll
-for(int i=0; i<2;i++){
-#pragma HLS UNROLL
-	for(int j=0;j<3;j++){
-		for(int k=0;k<th_ch11;k++){
-			t_th11i_1[p][i][j][k]=a_th11i_1[p+1][i][j][k];
-
-				}
-			}
-		}
-}*/
 
 
 
@@ -447,21 +396,6 @@ for(int p=0;p<4;p++){
 			}
 	}
 
-/*
-for(int p=0;p<4;p++){
-		#pragma HLS unroll
-for(int i=0; i<5;i++){
-#pragma HLS UNROLL
-	for(int j=0;j<9;j++){
-		for(int k=0;k<seg_ch;k++){
-			t_thi_1[p][i][j][k]=a_thi_1[p+1][i][j][k];
-
-				}
-			}
-		}
-}
-
-*/
 
 /****tho[2]=a_thi_1[0]******/
 co_ord_delay_label20:for(int i=0; i<5;i++){
@@ -525,7 +459,6 @@ for(int i=0; i<5;i++){
 //Shift reg
 for(int p=0;p<4;p++){
 	#pragma HLS unroll
-	/*a_phi_1[p-1]=a_phi_1[p];*/
 	for(int i=0; i<5;i++){
 #pragma HLS UNROLL
 		for(int j=0;j<9;j++){
@@ -535,17 +468,6 @@ for(int p=0;p<4;p++){
 			}
 	}
 
-/*
-for(int p=0;p<4;p++){
-		#pragma HLS unroll
-for(int i=0; i<5;i++){
-#pragma HLS UNROLL
-	for(int j=0;j<9;j++){
-			t_vli_1[p][i][j]=a_vli_1[p+1][i][j];
-			}
-		}
-}
-*/
 
 
 
@@ -609,7 +531,6 @@ for(int i=0; i<2;i++){
 //Shift reg
 for(int p=0;p<4;p++){
 	#pragma HLS unroll
-	/*a_phi_1[p-1]=a_phi_1[p];*/
 	for(int i=0; i<2;i++){
 #pragma HLS UNROLL
 		for(int j=0;j<3;j++){
@@ -618,18 +539,6 @@ for(int p=0;p<4;p++){
 				}
 			}
 	}
-
-/*
-for(int p=0;p<4;p++){
-		#pragma HLS unroll
-for(int i=0; i<2;i++){
-#pragma HLS UNROLL
-	for(int j=0;j<3;j++){
-			t_me11ai_1[p][i][j]=a_me11ai_1[p+1][i][j];
-			}
-		}
-}
-*/
 
 
 
@@ -695,7 +604,6 @@ for(int i=0; i<5;i++){
 //Shift reg
 for(int p=0;p<4;p++){
 	#pragma HLS unroll
-	/*a_phi_1[p-1]=a_phi_1[p];*/
 	for(int i=0; i<5;i++){
 #pragma HLS UNROLL
 		for(int j=0;j<9;j++){
@@ -706,22 +614,6 @@ for(int p=0;p<4;p++){
 				}
 			}
 	}
-
-/*
-for(int p=0;p<4;p++){
-		#pragma HLS unroll
-for(int i=0; i<5;i++){
-#pragma HLS UNROLL
-	for(int j=0;j<9;j++){
-		for(int k=0;k<seg_ch;k++){
-			t_cpati_1[p][i][j][k]=a_cpati_1[p+1][i][j][k];
-
-				}
-			}
-		}
-}
-*/
-
 
 
 /****cpato[2]=a_cpati_1[0]******/
@@ -761,6 +653,7 @@ co_ord_delay_label122:for(int i=0; i<5;i++){
 
 
 ////Dummy line for shift reg
+//This dummy line is required to achieve exact behavior in software and firmware
 /******************DUMMY LINE******************/
 for(int p=0;p<4;p++){
 		#pragma HLS unroll

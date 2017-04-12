@@ -42,17 +42,15 @@ void sp_c::ph_pattern_sector(/*ap_uint<1> en,*/
 		// left, right and center qualities
 	    ap_uint<6> ql, qr, qc;
 
+	    //static array of objects guarantee persistence
 	    static ph_pattern inst[4][ph_raw_w];
+	    //Array partition of static objects enable parallel operation
 #pragma HLS ARRAY_PARTITION variable=inst complete dim=0
 
 
 
 
 
-//if(en==0)
-
-	   // while(en==1)
-	    {
 
 		PAD:for (int z = 0; z < 4; z = z+1){
 #pragma HLS UNROLL
@@ -67,7 +65,7 @@ void sp_c::ph_pattern_sector(/*ap_uint<1> en,*/
 			stp [z][2](ph_raw_w + padding_w_st3*2-1 , ph_raw_w + padding_w_st3) = 0;
 		}
 
-//else
+
 
 
 
@@ -79,8 +77,8 @@ void sp_c::ph_pattern_sector(/*ap_uint<1> en,*/
 					stp [z][2](ph_raw_w + padding_w_st3-1 , padding_w_st3) = st[z][4];
 		}
 
-//if(en==1)
-{
+
+
 
 		INSTANTIATE:for (z = 0; z < 4; z = z+1){
 #pragma HLS UNROLL
@@ -100,7 +98,7 @@ void sp_c::ph_pattern_sector(/*ap_uint<1> en,*/
 		}
 
 
-			    std::cout<<"qcode["<<z<<"]["<<i<<"]= "<<qcode[z][i]<<std::endl;
+
 
 			/*	*****GHOST CANCELLATION****/
 		GHOST:for (z = 0; z < 4; z = z+1){
@@ -138,10 +136,8 @@ void sp_c::ph_pattern_sector(/*ap_uint<1> en,*/
 		}
 
 
-}
-	    }
 
-	//    ap_wait();
+
 
 
 }
