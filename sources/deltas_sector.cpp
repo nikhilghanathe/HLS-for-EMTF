@@ -81,10 +81,10 @@ delta inst[4][3];
 
 
 
-	delta_sector_actual_label0:for (i = 0; i < 2; i = i+1){
+	delta_sector_actual_label0:for (i = 0; i < 2/*2*/; i = i+1){
 #pragma HLS UNROLL
  // zone loop
-			for (j = 0; j < 3; j = j+1){ // pattern loop
+			for (j = 0; j < 3/*3*/; j = j+1){ // pattern loop
 
 #pragma HLS UNROLL
 				//deltas_m1 is function for me11a ==1
@@ -155,6 +155,7 @@ delta inst[4][3];
 					 );
 				}
 			}//block: zl
+
 
 
 

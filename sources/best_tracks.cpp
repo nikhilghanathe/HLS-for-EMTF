@@ -46,7 +46,7 @@ void sp_c::best_tracks(
 			)
 {
 #pragma HLS PIPELINE II=1
-
+#pragma HLS PROTOCOL floating
 #pragma HLS INTERFACE ap_ctrl_none port=return
 #pragma HLS ARRAY_PARTITION variable=phi complete dim=0
 #pragma HLS ARRAY_PARTITION variable=theta complete dim=0
@@ -72,6 +72,8 @@ void sp_c::best_tracks(
 #pragma HLS ARRAY_PARTITION variable=bt_hi complete dim=0
 #pragma HLS ARRAY_PARTITION variable=bt_ci complete dim=0
 #pragma HLS ARRAY_PARTITION variable=bt_si complete dim=0
+
+#pragma HLS PROTOCOL fixed
 
 
 static best_track inst;
@@ -104,4 +106,4 @@ inst.best_tracks_actual(
 				);
 
 
-	}
+}

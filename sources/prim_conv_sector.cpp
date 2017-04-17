@@ -88,10 +88,10 @@ void sp_c::prim_conv_sector(/*inputs*/
 
 
 
-	prim_conv_sector_label0: for (i = 0; i < 2/*2*/; i++) {
+	prim_conv_sector_label0: for (i = 0; i < 2; i++) {
 #pragma HLS UNROLL
 		//station11
-		prim_conv_sector_label1: for (j = 0; j < 3/*3*/; j++) {
+		prim_conv_sector_label1: for (j = 0; j < 3; j++) {
 #pragma HLS UNROLL
 
 			 //defparam pc11.station = i;
@@ -107,6 +107,7 @@ void sp_c::prim_conv_sector(/*inputs*/
 
 		}
 	}
+
 
 
 
@@ -146,6 +147,8 @@ void sp_c::prim_conv_sector(/*inputs*/
 
 		}
 	}
+
+
 
 
 

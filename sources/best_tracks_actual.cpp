@@ -1,4 +1,4 @@
-    #include <ap_int.h>
+ #include <ap_int.h>
 #include "spbits.h"
 #include "best_track.h"
 
@@ -38,6 +38,7 @@ void best_track::best_tracks_actual(ap_uint<bw_fph> phi[4][3],
 		) {
 
 #pragma HLS INLINE off
+//#pragma HLS PROTOCOL floating
 #pragma HLS INTERFACE ap_ctrl_none port=return
 #pragma HLS PIPELINE II=1
 #pragma HLS ARRAY_PARTITION variable=phi complete dim=0
@@ -144,60 +145,71 @@ void best_track::best_tracks_actual(ap_uint<bw_fph> phi[4][3],
 		}
 
 
+//
+//	// zero segment numbers
+//	for (z = 0; z < 4; z = z + 1) {
+////#pragma HLS LOOP_FLATTEN
+// // zone loop
+//#pragma HLS UNROLL
+//		for (n = 0; n < 3; n = n + 1) { // pattern number
+//#pragma HLS UNROLL
+////#pragma HLS LOOP_FLATTEN
+//			for (s = 4; s < 5; s = s + 1) { // station
+//#pragma HLS UNROLL
+////#pragma HLS LOOP_FLATTEN
+//				cn_vi[z][n][s] = 0;
+//				cn_hi[z][n][s] = 0;
+//				cn_si[z][n][s] = 0;
+//				cn_ci[z][n][s] = 0;
+//			}
+//		}
+//	}
+//
 
-	// zero segment numbers
-	for (z = 0; z < 4; z = z + 1) {
-//#pragma HLS LOOP_FLATTEN
- // zone loop
-#pragma HLS UNROLL
-		for (n = 0; n < 3; n = n + 1) { // pattern number
-#pragma HLS UNROLL
-//#pragma HLS LOOP_FLATTEN
-			for (s = 0; s < 5; s = s + 1) { // station
-#pragma HLS UNROLL
-//#pragma HLS LOOP_FLATTEN
-				cn_vi[z][n][s] = 0;
-				cn_hi[z][n][s] = 0;
-				cn_si[z][n][s] = 0;
-				cn_ci[z][n][s] = 0;
-			}
-		}
-	}
 
 
+				// input segment numbers are in terms of chambers in zone
+			// convert them back into chamber ids in sector
+			for (z = 0; z < 4; z = z+1){ // zone loop
+				for (n = 0; n < 3; n = n+1){ // pattern number
+					for (s = 0; s < 5; s = s+1){// station
 
+						//Assign outputs. This is done for timing closure
+						if(s==4){
+							cn_vi[z][n][s] = 0;
+							cn_hi[z][n][s] = 0;
+							cn_si[z][n][s] = 0;
+							cn_ci[z][n][s] = 0;
+						}else
+						{
+							// calculate real station and chamber numbers
+									cham[z][n][s] = ci[z][n][s];
 
-			// input segment numbers are in terms of chambers in zone
-		// convert them back into chamber ids in sector
-		for (z = 0; z < 4; z = z+1){ // zone loop
-			for (n = 0; n < 3; n = n+1){ // pattern number
-				for (s = 0; s < 4; s = s+1){// station
-					// calculate real station and chamber numbers
-					cham[z][n][s] = ci[z][n][s];
-					if (s == 0){
-						real_st[z][n][s] = (cham[z][n][s] < 3) ? 0 : 1;
-						real_ch[z][n][s] = mod3(cham[z][n][s]); // will this synthesize OK?
-						if (z == 2) real_ch[z][n][s] = real_ch[z][n][s] + 3;
-						if (z == 3) real_ch[z][n][s] = real_ch[z][n][s] + 6;
+							if (s == 0){
+								real_st[z][n][s] = (cham[z][n][s] < 3) ? 0 : 1;
+								real_ch[z][n][s] = mod3(cham[z][n][s]); // will this synthesize OK?
+								if (z == 2) real_ch[z][n][s] = real_ch[z][n][s] + 3;
+								if (z == 3) real_ch[z][n][s] = real_ch[z][n][s] + 6;
+							}
+							else if (s == 1){
+								real_st[z][n][s] = s + 1;
+								real_ch[z][n][s] = cham[z][n][s];
+								if (z > 1) real_ch[z][n][s] = real_ch[z][n][s] + 3;
+							}
+							else{
+								real_st[z][n][s] = s + 1;
+								real_ch[z][n][s] = cham[z][n][s];
+								if (z > 0) real_ch[z][n][s] = real_ch[z][n][s] + 3;
+							}
+
+							cn_vi[z][n][real_st[z][n][s]] = vi[z][n][s];
+							cn_hi[z][n][real_st[z][n][s]] = hi[z][n][s];
+							cn_si[z][n][real_st[z][n][s]] = si[z][n][s];
+							cn_ci[z][n][real_st[z][n][s]] = real_ch[z][n][s];
+						}
 					}
-					else if (s == 1){
-						real_st[z][n][s] = s + 1;
-						real_ch[z][n][s] = cham[z][n][s];
-						if (z > 1) real_ch[z][n][s] = real_ch[z][n][s] + 3;
-					}
-					else{
-						real_st[z][n][s] = s + 1;
-						real_ch[z][n][s] = cham[z][n][s];
-						if (z > 0) real_ch[z][n][s] = real_ch[z][n][s] + 3;
-					}
-
-					cn_vi[z][n][real_st[z][n][s]] = vi[z][n][s];
-					cn_hi[z][n][real_st[z][n][s]] = hi[z][n][s];
-					cn_si[z][n][real_st[z][n][s]] = si[z][n][s];
-					cn_ci[z][n][real_st[z][n][s]] = real_ch[z][n][s];
 				}
 			}
-		}
 
 
 
@@ -244,7 +256,7 @@ void best_track::best_tracks_actual(ap_uint<bw_fph> phi[4][3],
 
 
 	for(index_i=0,i=0;i<12;i++,index_i=index_i+1){
-	#pragma HLS DEPENDENCE false
+	//#pragma HLS DEPENDENCE false
 	#pragma HLS UNROLL
 		//index_i(5,2) counter emulates behavior of i/4
 		//index_i(1,0) counter emulates behavior of i%4
@@ -273,7 +285,7 @@ void best_track::best_tracks_actual(ap_uint<bw_fph> phi[4][3],
 					else kill1_t[i][j][i] = 1;
 
 			}
-			}
+		}
 					index_j++;
 
 		}
@@ -314,11 +326,11 @@ void best_track::best_tracks_actual(ap_uint<bw_fph> phi[4][3],
 	// multiplex best tracks to outputs according to winner signals
 	for (n = 0; n < 3; n = n + 1) { // output loop
 #pragma HLS UNROLL
-#pragma HLS DEPENDENCE false
+//#pragma HLS DEPENDENCE false
 
 		for (i = 0; i < 12; i = i + 1) { // winner bit loop
 #pragma HLS UNROLL
-#pragma HLS DEPENDENCE false
+//#pragma HLS DEPENDENCE false
 
 			if(winner[i][n]){
 			//if (winner[n][i]) {
@@ -329,14 +341,14 @@ void best_track::best_tracks_actual(ap_uint<bw_fph> phi[4][3],
 
 				for (s = 0; s < 4; s = s + 1) { // station loop
 #pragma HLS UNROLL
-#pragma HLS DEPENDENCE false
+//#pragma HLS DEPENDENCE false
 					bt_cpattern[n][s] =bt_cpattern[n][s]
 							| cpattern[i % 4][i / 4][s];
 				}
 
 				for (s = 0; s < 6; s = s + 1) { // delta loop
 #pragma HLS UNROLL
-#pragma HLS DEPENDENCE false
+//#pragma HLS DEPENDENCE false
 					bt_delta_ph[n][s] = bt_delta_ph[n][s] | delta_ph[i % 4][i / 4][s];
 					bt_sign_ph[n][s] = bt_sign_ph[n][s]   | sign_ph[i % 4][i / 4][s];
 					bt_delta_th[n][s] = bt_delta_th[n][s] | delta_th[i % 4][i / 4][s];
@@ -345,7 +357,7 @@ void best_track::best_tracks_actual(ap_uint<bw_fph> phi[4][3],
 
 				for (s = 0; s < 5; s = s + 1) { // station loop
 #pragma HLS UNROLL
-#pragma HLS DEPENDENCE false
+//#pragma HLS DEPENDENCE false
 					bt_vi[n][s] = bt_vi[n][s] | cn_vi[i % 4][i / 4][s];
 					bt_hi[n][s] = bt_hi[n][s] | cn_hi[i % 4][i / 4][s];
 					bt_ci[n][s] = bt_ci[n][s] | cn_ci[i % 4][i / 4][s];

@@ -229,13 +229,13 @@ public:
 
 				ap_uint<30> ptlut_addr [3],
 				ap_uint<32> ptlut_cs [3],
-				ap_uint<3> ptlut_addr_val,
+				ap_uint<3> *ptlut_addr_val,
 				ap_uint<bwr+1> bt_rank_o [3],
 
 				ap_uint<8> gmt_phi [3],
 				ap_uint<9> gmt_eta [3],
 				ap_uint<4> gmt_qlt [3],
-				ap_uint<3> gmt_crg,
+				ap_uint<3> *gmt_crg,
 
 				ap_uint<3> sector,
 				ap_uint<1> endcap,

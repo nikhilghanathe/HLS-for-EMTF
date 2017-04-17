@@ -1,10 +1,12 @@
 #include <ap_int.h>
 #include "spbits.h"
+///#include "primitive.h"
 #include "sp.h"
 #include <fstream>
 #include <iostream>
 #include <ap_utils.h>
-
+//#include <systemc.h>
+using namespace std;
 
  void sp(	ap_uint<4>         q  [5][9][seg_ch],
 	    ap_uint<bw_wg>   wg   [5][9][seg_ch],
@@ -19,8 +21,10 @@
 	    ap_uint<12>  		r_out, // ap_uint<> data from memory or register
 	    ap_uint<1> 				we, // write enable for memory or register
 
-
-/*
+		 ap_uint<ph_raw_w>  ph_zone [4][5],
+		//Used for Extend Sector
+		ap_uint<ph_raw_w>	ph_ext[4][5],
+	/*
 		//used for only pcs
 		ap_uint<bw_fph> ph[5][9][seg_ch],
 		ap_uint<bw_th> th11[2][3][th_ch11],
@@ -33,25 +37,17 @@
 		ap_uint<th_hit_w> th_hit[5][9],
 	//	ap_uint<12> *r_out,
 		//till here for pcs
-
-
 		//Used for zns
 	    ap_uint<ph_raw_w>  ph_zone [4][5],
-
 		//Used for Extend Sector
 		 ap_uint<ph_raw_w>	ph_ext[4][5],
-
-
 		 //Used for phps
 		 ap_uint<6> ph_rank[4][ph_raw_w],
-
 		 //Used for  sort sector
 			// numbers of best ranks [zone][num]
 		 ap_uint<bpow+1>  ph_num [4][3],
 			// best ranks [zone][num]
 		 ap_uint<bwr>  ph_q [4][3],
-
-
 		 //match_ph_seg
 		 ap_uint<seg_ch> vi [4][3][4], // valid (for each segment in chamber, so we can identify which th to use later)
 		 ap_uint<2> 		hi [4][3][4], // bx index
@@ -62,7 +58,6 @@
 		 ap_uint<bw_th>	th_match11 [2][3][th_ch11], // matching th for ME11 (station 0 only), 4 segments (due to th duplication)
 		 ap_uint<4> 		cpat_match [4][3][4], // matching patterns
 		 ap_uint<6> 	ph_qr [4][3],
-
 		 //used for deltas sector
 		 ap_uint<bw_fph> phi [4][3],
 		 ap_uint<bw_th>  theta [4][3],
@@ -80,8 +75,8 @@
 		 ap_uint<2>  			hir [4][3][4], // bx index
 		 ap_uint<3>  			cir [4][3][4], // chamber
 		 ap_uint<4>  			sir [4][3], // segment
-*/
 
+*/
 
 		 //used for best_tracks
 		ap_uint<bw_fph>	    bt_phi [3],
@@ -105,11 +100,11 @@
 		//used for ptlut
 	    ap_uint<30>  ptlut_addr [3], // ptlut addresses for best 3 muons
 	    ap_uint<32>  ptlut_cs [3], // pre-decoded chip selects
-	    ap_uint<3>  ptlut_addr_val, // ptlut address valid flags
+	    ap_uint<3>  *ptlut_addr_val, // ptlut address valid flags
 		ap_uint<8>  gmt_phi [3], // phi for gmt
 	    ap_uint<9>  gmt_eta [3], // eta for gmt
 	    ap_uint<4> gmt_qlt [3], // quality for gmt
-		ap_uint<3> gmt_crg,
+		ap_uint<3> *gmt_crg,
 
 
  //till here for pcs
@@ -127,9 +122,9 @@
 
 {
 
+ // this is for generating registers at outputs
 
-
-#pragma HLS INTERFACE ap_ctrl_none port=return
+#pragma HLS INTERFACE ap_ctrl_none port=return //this is for registers at input
 
 #pragma HLS PIPELINE II=1
 #pragma HLS ARRAY_PARTITION variable=cpat complete dim=0
@@ -138,8 +133,6 @@
 #pragma HLS ARRAY_PARTITION variable=q dim=0
 #pragma HLS ARRAY_PARTITION variable=pcs_cs complete dim=0
 
-
-	//stable ports avoid input registering
 #pragma HLS INTERFACE ap_stable port=q
 #pragma HLS INTERFACE ap_stable port=hstr
 #pragma HLS INTERFACE ap_stable port=cpat
@@ -248,25 +241,22 @@
 ap_uint<3> drifttime=3;
 ap_uint<3> ph_foldn=0;
 ap_uint<bw_th> th_window=4;
-
-static sp_c pcs;
-static sp_c zns;
-static  sp_c exts;
-static sp_c phps;
-static sp_c srts;
-sp_c cdl;
-static sp_c mphseg;
-static sp_c ds;
-static sp_c bt;
-static sp_c pta;
+ static sp_c pcs;
+	 static sp_c zns;
+	static  sp_c exts;
+ static sp_c phps;
+ 	static sp_c srts;
+ 	 sp_c cdl;
+ 	static sp_c mphseg;
+ 	static sp_c ds;
+ 	static sp_c bt;
+ 	static sp_c pta;
 
 /*************************************************************/
-
- 	{
-//fixed protocol makes latency increase by 1
 //#pragma HLS PROTOCOL fixed
-
-	//Primitive Conversion
+ 	{
+ //	#pragma HLS LATENCY min=0 max=0
+//#pragma HLS PROTOCOL fixed
 		pcs.prim_conv_sector(
 				(q),
 				(wg),
@@ -293,57 +283,62 @@ static sp_c pta;
 				 );
 
  	}
+ //	ap_wait();
 
 
-
-
-/***********************START OF FLOATING REGION**********************************/
+/*********************************************************/
 
  	{
 
- 		//floating protocol makes region execute in parallel
+
 #pragma HLS PROTOCOL floating
+
+//ap_wait_n(4);
+
  		{
- 			//Delay module for outputs from Primitive Conversion
+ 	//#pragma HLS PROTOCOL fixed
  			cdl.co_ord_delay
 
-			(
-			 ph_t,
-			 th11_t,
-			 th_t,
-			 vl_t,
-			 me11a_t,
-			 cpatr_t,
+ 			(
+ 			 ph_t,
+ 			 th11_t,
+ 			 th_t,
+ 			 vl_t,
+ 			 me11a_t,
+ 			 cpatr_t,
 
-			 phd,
-			 th11d,
-			 thd,
-			 vld,
-			 me11ad,
-			 cpatd,
-			 dummy
-			 );
- 		}
-
-
+ 			 phd,
+ 			 th11d,
+ 			 thd,
+ 			 vld,
+ 			 me11ad,
+ 			 cpatd,
+ 			 dummy
+ 			 );
+ 	}
 
 
+// 	ap_wait();
  		{
+//#pragma HLS PROTOCOL fixed
+
  	{
 
- 		//zone hit
+//#pragma HLS PROTOCOL fixed
+
 		zns.zones(phzvl_t,
 				  ph_hit_t,
 				  ph_zone_t
 			);
 
-
+		ap_wait();
  	}
 
 
 /*****************************************************************/
  {
-	 //zone hit extender module
+ //		#pragma HLS LATENCY min=0 max=0
+//#pragma HLS PROTOCOL fixed
 		exts.extend_sector(
 				ph_zone_t,
 				ph_ext_t,
@@ -351,29 +346,37 @@ static sp_c pta;
 
  	}
 
+
+ 	ap_wait_n(3);
 /*****************************************************************/
  	{
- 		//pattern selection module
+//#pragma HLS LATENCY min=0 max=0
+ //		#pragma HLS PROTOCOL fixed
 		phps.ph_pattern_sector(ph_ext_t,
 				drifttime,
 				ph_foldn,
 				ph_rank_t);
 
+		ap_wait();
  	}
+ //	ap_wait();
 /***********************************************************************************/
 
  	{
- 		//sort sector module selects the best three tracks
+//#pragma HLS LATENCY min=0 max=0
+//#pragma HLS PROTOCOL fixed
 		srts.sort_sector(ph_rank_t,
 						ph_num_t,
 						ph_q_t);
+	 	//ap_ap_wait();
+		ap_wait();
  	}
  		}
 
  	}
 
 
-/***********************END OF FLOATING REGION************************************************************/
+/***********************************************************************************/
 
 
 
@@ -386,7 +389,6 @@ static sp_c pta;
 
 #pragma HLS PROTOCOL fixed
 
-	 //Segments matching module
  	mphseg.match_ph_seg(
  		     ph_num_t,
  			 ph_q_t,
@@ -425,10 +427,8 @@ static sp_c pta;
 
 /**************************************/
 	{
-		//fixed protocol ensures no overlap of this function with any other
 #pragma HLS PROTOCOL fixed
 
-		//delta phi and delta theta calc module
 	ds.deltas_sector(
 	 patt_ph_vi,
 	 patt_ph_hi,
@@ -461,8 +461,6 @@ static sp_c pta;
 
 	{
 		#pragma HLS PROTOCOL fixed
-
-		//selction of best tracks module
 		bt.best_tracks(
 						phi_t ,
 						theta_t ,
@@ -491,52 +489,11 @@ static sp_c pta;
 						bt_si_t
 						);
 
-
 	}
-	for(int i=0;i<3;i++){
-#pragma HLS UNROLL
-		bt_phi[i]=bt_phi_t[i];
-		bt_theta[i]=bt_theta_t[i];
-		bt_sign_ph[i]=bt_sign_ph_t[i];
-		bt_sign_th[i]=bt_sign_th_t[i];
-		bt_rank[i]=bt_rank_t[i];
-		bt_si[i]=bt_si_t[i];
-				}
-
-	for(int i=0;i<3;i++){
-		#pragma HLS UNROLL
-			for(int j=0;j<4;j++){
-		#pragma HLS UNROLL
-				bt_cpattern[i][j]=bt_cpattern_t[i][j];
-				}
-			}
-
-	for(int i=0;i<3;i++){
-		#pragma HLS UNROLL
-			for(int j=0;j<6;j++){
-		#pragma HLS UNROLL
-				bt_delta_ph[i][j]=bt_delta_ph_t[i][j];
-				bt_delta_th[i][j]=bt_delta_th_t[i][j];
-				}
-			}
-
-	for(int i=0;i<3;i++){
-		#pragma HLS UNROLL
-			for(int j=0;j<5;j++){
-		#pragma HLS UNROLL
-				bt_vi[i][j]=bt_vi_t[i][j];
-				bt_hi[i][j]=bt_hi_t[i][j];
-				bt_ci[i][j]=bt_ci_t[i][j];
-
-				}
-			}
-
 /****************************************************/
 
 	{
 #pragma HLS PROTOCOL fixed
-
-		//ptlut assignment module
 	    pta.ptlut_address
 	    (
 	        (bt_phi_t),
@@ -572,6 +529,54 @@ static sp_c pta;
 
 
 /*******************ASSIGN OUTPUTS*********************************************/
+	 for(int i=0;i<4;i++){
+	#pragma HLS UNROLL
+		for(int j=0;j<5;j++){
+	#pragma HLS UNROLL
+			ph_zone[i][j]=ph_zone_t[i][j];
+			ph_ext[i][j]=ph_ext_t[i][j];
+		}
+	 }
+
+
+		for(int i=0;i<3;i++){
+	#pragma HLS UNROLL
+			bt_phi[i]=bt_phi_t[i];
+			bt_theta[i]=bt_theta_t[i];
+			bt_sign_ph[i]=bt_sign_ph_t[i];
+			bt_sign_th[i]=bt_sign_th_t[i];
+			bt_rank[i]=bt_rank_t[i];
+			bt_si[i]=bt_si_t[i];
+					}
+
+		for(int i=0;i<3;i++){
+			#pragma HLS UNROLL
+				for(int j=0;j<4;j++){
+			#pragma HLS UNROLL
+					bt_cpattern[i][j]=bt_cpattern_t[i][j];
+					}
+				}
+
+		for(int i=0;i<3;i++){
+			#pragma HLS UNROLL
+				for(int j=0;j<6;j++){
+			#pragma HLS UNROLL
+					bt_delta_ph[i][j]=bt_delta_ph_t[i][j];
+					bt_delta_th[i][j]=bt_delta_th_t[i][j];
+					}
+				}
+
+		for(int i=0;i<3;i++){
+			#pragma HLS UNROLL
+				for(int j=0;j<5;j++){
+			#pragma HLS UNROLL
+					bt_vi[i][j]=bt_vi_t[i][j];
+					bt_hi[i][j]=bt_hi_t[i][j];
+					bt_ci[i][j]=bt_ci_t[i][j];
+
+					}
+				}
+
 /*
 	for(int i=0;i<5;i++){
 	#pragma HLS UNROLL
@@ -589,7 +594,6 @@ static sp_c pta;
 				}
 			}
 		}
-
 		for(int i=0;i<2;i++){
 	#pragma HLS UNROLL
 			for(int j=0;j<3;j++){
@@ -598,32 +602,18 @@ static sp_c pta;
 				for(int k=0;k<th_ch11;k++){
 	#pragma HLS UNROLL
 					th11[i][j][k]=th11_t[i][j][k];
-
 				}
 			}
 		}
 
-			  for(int i=0;i<4;i++){
-#pragma HLS UNROLL
-				for(int j=0;j<5;j++){
-#pragma HLS UNROLL
-					ph_zone[i][j]=ph_zone_t[i][j];
-					ph_ext[i][j]=ph_ext_t[i][j];
-				}
 
-			  }
-
-
-			  for(int i=0;i<4;i++){
+		  for(int i=0;i<4;i++){
 #pragma HLS UNROLL
 				for(int j=0;j<ph_raw_w;j++){
 #pragma HLS UNROLL
 					ph_rank[i][j]=ph_rank_t[i][j];
 				}
-
 			  }
-
-
 			  for(int i=0;i<4;i++){
 #pragma HLS UNROLL
 				for(int j=0;j<3;j++){
@@ -631,10 +621,7 @@ static sp_c pta;
 					ph_num[i][j]=ph_num_t[i][j];
 					ph_q[i][j]=ph_q_t[i][j];
 				}
-
 			  }
-
-
 		for(int i=0;i<4;i++){
 			#pragma HLS UNROLL
 					for(int j=0;j<3;j++){
@@ -651,8 +638,6 @@ static sp_c pta;
 						}
 					}
 				}
-
-
 		for(int i=0;i<2;i++){
 			#pragma HLS UNROLL
 					for(int j=0;j<3;j++){
@@ -663,8 +648,6 @@ static sp_c pta;
 						}
 					}
 				}
-
-
 		for(int i=0;i<4;i++){
 			#pragma HLS UNROLL
 					for(int j=0;j<3;j++){
@@ -678,12 +661,10 @@ static sp_c pta;
 					}
 				}
 
-*/
 
 
 
-
-/*		for(int i=0;i<4;i++){
+		for(int i=0;i<4;i++){
 			#pragma HLS UNROLL
 				for(int j=0;j<3;j++){
 			#pragma HLS UNROLL
@@ -693,10 +674,8 @@ static sp_c pta;
 				sir[i][j]=sir_t[i][j];
 				sign_ph[i][j]=sign_ph_t[i][j];
 				sign_th[i][j]=sign_th_t[i][j];
-
 					}
 				}
-
 		for(int i=0;i<4;i++){
 			#pragma HLS UNROLL
 					for(int j=0;j<3;j++){
@@ -705,11 +684,9 @@ static sp_c pta;
 			#pragma HLS UNROLL
 					delta_ph[i][j][k]=delta_ph_t[i][j][k];
 					delta_th[i][j][k]=delta_th_t[i][j][k];
-
 						}
 					}
 				}
-
 		for(int i=0;i<4;i++){
 			#pragma HLS UNROLL
 					for(int j=0;j<3;j++){
@@ -728,6 +705,5 @@ static sp_c pta;
 
 
  	}
-
 
 

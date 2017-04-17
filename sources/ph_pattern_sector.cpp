@@ -82,7 +82,7 @@ void sp_c::ph_pattern_sector(/*ap_uint<1> en,*/
 
 		INSTANTIATE:for (z = 0; z < 4; z = z+1){
 #pragma HLS UNROLL
-			ph_pattern_sector_label0:for (i = 0; i <ph_raw_w; i = i+1){
+			ph_pattern_sector_label0:for (i = 0; i < ph_raw_w; i = i+1){
 #pragma HLS UNROLL
 				inst[z][i].ph_pattern_exec(
 				 stp [z][0](i+full_pat_w_st1-1 , i),

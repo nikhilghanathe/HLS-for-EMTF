@@ -7,7 +7,7 @@
 
 
 void sp_c::extend_sector(   ap_uint<ph_raw_w> ph_zone[4][5],
-			  ap_uint<ph_raw_w>	ph_ext[4][5],
+		   ap_uint<ph_raw_w>	ph_ext[4][5],
 			ap_uint<3> drifttime)
 			{
 
@@ -18,7 +18,9 @@ void sp_c::extend_sector(   ap_uint<ph_raw_w> ph_zone[4][5],
 #pragma HLS ARRAY_PARTITION variable=ph_zone complete dim=0
 #pragma HLS ARRAY_PARTITION variable=ph_ext complete dim=0
 
- extend inst[4][5];
+   extend inst[4][5];
+
+
 #pragma HLS ARRAY_PARTITION variable=inst complete dim=0
 
 	for (int i = 0; i < 4; i = i+1){

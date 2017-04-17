@@ -14,7 +14,7 @@ public:
 	ap_uint<3> count_shsegs(ap_uint<2> ai[5],ap_uint<4> bi[5],ap_uint<5> ci,ap_uint<2> di[5],
 			ap_uint<2> aj[5],ap_uint<4> bj[5],ap_uint<5> cj,ap_uint<2> dj[5]){
 	 #pragma HLS INLINE off
-	#pragma HLS LATENCY max=0
+//#pragma HLS PROTOCOL floating
 	#pragma HLS INTERFACE ap_ctrl_none port=return
 	#pragma HLS PIPELINE II=1
 
