@@ -4,7 +4,7 @@
 #include "sp.h"
 
 
-void match_ph_seg(
+void sp_c::match_ph_seg(
 		   // numbers of best ranks [zone][rank number]
 		    ap_uint<bpow+1> ph_num [4][3],
 		    // best ranks [zone][rank number]
