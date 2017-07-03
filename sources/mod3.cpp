@@ -23,8 +23,11 @@ one= (~a & ~b & ~c & d) | (~a & b & ~c & ~d) | (~a & b & c & d) | (a & ~b & c & 
 two= (~a & ~b & c & ~d) | (~a & b & ~c & d) | (a & ~b & ~c & ~d) | (a & ~b & c & d) | (a & b & c & ~d);
 
 
-
-
-return (0x0,two,one);
+return (ap_uint<2>(0),two,one);
 
 }
+
+
+
+
+

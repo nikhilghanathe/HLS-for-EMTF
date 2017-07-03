@@ -4,7 +4,7 @@
 using namespace std;
 #define add if(this->pr==1)
 
-void match_seg::find_segment_stn1(
+void match_seg::find_segment_1_62(
 		 ap_uint<bpow+1> ph_pat_p, // ph detected in pattern
 		 ap_uint<6> ph_pat_q_p, // pattern valid
 
@@ -38,10 +38,10 @@ void match_seg::find_segment_stn1(
 
 
 
-   const int tot_diff = max_drift*3/*zone_cham*/*seg_ch;
-   const int max_ph_diff=7;
-   const int bw_phdiff=4;
-   const int nodiff=15;
+   const int tot_diff = max_drift*6/*zone_cham*/*seg_ch;
+   const int max_ph_diff=15;
+   const int bw_phdiff=5;
+   const int nodiff=31;
 
 
 
@@ -86,12 +86,12 @@ void match_seg::find_segment_stn1(
 	}
 }*/
 	 if(this->pr==1){
-	 cout<<"ph_pat_p= "<<ph_pat_p<<endl;
-	 cout<<"ph_pat_q_p= "<<ph_pat_q_p<<endl;
+	// cout<<"ph_pat_p= "<<ph_pat_p<<endl;
+	// cout<<"ph_pat_q_p= "<<ph_pat_q_p<<endl;
 	 for(int i=0;i<3;i++){
-	 	for(int j=0;j<zone_cham;j++){
+	 	for(int j=0;j<6/*zone_cham*/;j++){
 	 		for(int k=0;k<2;k++){
-	 			  cout<<hex<<"ph_seg_p["<<i<<"]["<<j<<"]["<<k<<"]= "<<ph_seg_p[i][j][k]<<hex<<endl;
+	 //			  cout<<hex<<"ph_seg_p["<<i<<"]["<<j<<"]["<<k<<"]= "<<ph_seg_p[i][j][k]<<hex<<endl;
 	 		}
 
 	 	}
@@ -101,7 +101,7 @@ void match_seg::find_segment_stn1(
 	 	ph_pat_v = ph_pat_q_p != 0; // non-zero quality means valid pattern
 	 	find_segment_st1_label0:for(int i=0;i<max_drift;i++){
 	 #pragma HLS UNROLL
-	 		find_segment_st1_label1:for(int j=0;j<3/*zone_cham*/;j++){
+	 		find_segment_st1_label1:for(int j=0;j<6/*zone_cham*/;j++){
 	 #pragma HLS UNROLL
 	 			find_segment_st1_label2:for(int k=0;k<seg_ch;k++){
 	 #pragma HLS UNROLL
@@ -129,13 +129,15 @@ void match_seg::find_segment_stn1(
 	 	di = 0;
 	 	find_segment_st1_label5:for (i = 0; i < max_drift; i = i+1){ // history loop
 	 #pragma HLS UNROLL
-	 		find_segment_st1_label6:for (j = 0; j < 3/*zone_cham*/; j = j+1){ // chamber loop
+	 		find_segment_st1_label6:for (j = 0; j < 6/*zone_cham*/; j = j+1){ // chamber loop
 	 #pragma HLS UNROLL
 	 			find_segment_st1_label7:for (k = 0; k < seg_ch; k = k+1){ // segment loop
 	 #pragma HLS UNROLL
 	 				// remove unused low bits from segment ph
 	 				ph_segr = ph_seg[i][j][k](bw_fph-1 , bw_fph-bpow-1);
-
+	 				 if(this->pr==1 && ph_seg[i][j][k]==0xe7d){
+	 	//			   cout<<"ph_segr= "<<ph_segr<<endl;
+	 				 }
 	 				// get abs difference
 	 				if (ph_seg_v[i][j][k])
 	 					    ph_diff_tmp = (ph_pat > ph_segr) ? ph_pat - ph_segr : ph_segr - ph_pat;
@@ -143,16 +145,23 @@ void match_seg::find_segment_stn1(
 	 					ph_diff_tmp = nodiff; // if segment invalid put max value into diff
 
 	 			    if((ph_diff_tmp) > (max_ph_diff))
-	 					    ph_diff[i*3/*zone_cham*/*seg_ch + j*seg_ch + k] = nodiff; // difference is too high, cannot be the same pattern
+	 					    ph_diff[i*6/*zone_cham*/*seg_ch + j*seg_ch + k] = nodiff; // difference is too high, cannot be the same pattern
 	 			    else
-	 			 	    ph_diff[i*3/*zone_cham*/*seg_ch + j*seg_ch + k] = ph_diff_tmp(bw_phdiff-1,0);
+	 			 	    ph_diff[i*6/*zone_cham*/*seg_ch + j*seg_ch + k] = ph_diff_tmp(bw_phdiff-1,0);
 
+
+	 			    if(this->pr==1 && ph_seg[i][j][k]==0xe7d){
+	 		//		   cout<<"ph_diff["<<i*6/*zone_cham*/*seg_ch + j*seg_ch + k<<"]= "<<ph_diff[i*6/*zone_cham*/*seg_ch + j*seg_ch + k]<<endl;
+	 				 }
 
 	 				ri = i;
 	 				rj = j;
 	 				rk = k;
 	 				// diffi variables carry track indexes
-	 				diffi0[i*3/*zone_cham*/*seg_ch + j*seg_ch + k] = (ri, rj, rk);
+	 				diffi0[i*6/*zone_cham*/*seg_ch + j*seg_ch + k] = (ri, rj, rk);
+	 				if(this->pr==1){
+	 		//		 cout<<"diffi0["<<i*6/*zone_cham*/*seg_ch + j*seg_ch + k<<"]= "<<diffi0[i*6/*zone_cham*/*seg_ch + j*seg_ch + k]<<endl;
+	 				}
 	 			}
 	 		}
 	 	} // for (i = 0; i < max_drift; i = i+1)
@@ -175,8 +184,10 @@ void match_seg::find_segment_stn1(
 	 						break;
 	 				default: break;
 	 				}
+	 				if(this->pr==1){
+	 		//		 cout<<"diffi1["<<i<<"]= "<<diffi1[i]<<endl;
+	 				}
 	 			}
-
 
 
 	 			// second stage
@@ -193,6 +204,10 @@ void match_seg::find_segment_stn1(
 	 						break;
 	 				default: break;
 	 				}
+	 				if(this->pr==1){
+	 			//	 cout<<"diffi2["<<i<<"]= "<<diffi2[i]<<endl;
+	 				}
+
 	 			}
 
 
@@ -210,6 +225,10 @@ void match_seg::find_segment_stn1(
 	 						break;
 	 				default: break;
 	 				}
+	 				if(this->pr==1){
+	 			//	 cout<<"diffi3["<<i<<"]= "<<diffi3[i]<<endl;
+	 				}
+
 	 			}
 	 			// last stage depends on number of input segments
 	 			if (tot_diff == 36)
@@ -230,6 +249,9 @@ void match_seg::find_segment_stn1(
 	 				cmp4 = cmp3[0];
 	 				diffi4 = diffi3[0];
 	 			}
+ 				if(this->pr==1){
+ 				// cout<<"diffi4= "<<diffi4<<endl;
+ 				}
 
 	 			a_hid=diffi4(5,4);
 	 			a_cid=diffi4(3,1);

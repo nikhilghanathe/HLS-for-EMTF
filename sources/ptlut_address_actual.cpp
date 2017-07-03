@@ -1,48 +1,49 @@
 #include <ap_int.h>
 #include "spbits.h"
 #include "ptlut_address.h"
-using namespace std;
-//#define concat (mode[i],bt_theta[i](6,2),clctA,get_d_th(bt_delta_th[i][4], bt_sign_th[i][4]),bt_sign_ph[i][5],bt_sign_ph[i][3],dphiC,dphiA)
+
 void ptlut::ptlut_address_actual(
 		// precise phi and theta of best tracks
 		// [best_track_num]
 		ap_uint<bw_fph>  bt_phi_i [3],
-		ap_uint<bw_th>  	bt_theta_i [3],
+		ap_uint<bw_th>   bt_theta_i [3],
 		// [best_track_num][station 0-3]
-		ap_uint<4> 		bt_cpattern [3][4],
+		ap_uint<4> 		 bt_cpattern [3][4],
 		// ph and th deltas from best stations
 		// [best_track_num], last index: 0=12, 1=13, 2=14, 3=23, 4=24, 5=34
-		ap_uint<bw_fph> bt_delta_ph [3][6],
+		ap_uint<bw_fph>  bt_delta_ph [3][6],
 		ap_uint<bw_th>  	bt_delta_th [3][6],
-		ap_uint<6> 		bt_sign_ph[3],
-		ap_uint<6>  		bt_sign_th[3],
+		ap_uint<6> 		 bt_sign_ph[3],
+		ap_uint<6>  	 bt_sign_th[3],
 		// ranks [best_track_num]
-		ap_uint<bwr+1> 	bt_rank_i [3],
+		ap_uint<bwr+1> 	 bt_rank_i [3],
 		//[best_track_num][station 0-4]
 		ap_uint<seg_ch>  bt_vi [3][5], // valid
-		ap_uint<2> 		bt_hi [3][5], // bx index
-		ap_uint<4>  		bt_ci [3][5], // chamber
-		ap_uint<5> 		bt_si [3], // segment
+		ap_uint<2> 		 bt_hi [3][5], // bx index
+		ap_uint<4>  	 bt_ci [3][5], // chamber
+		ap_uint<5> 		 bt_si [3], // segment
 
-	    ap_uint<1> vl_single,
-	    ap_uint<bw_fph> ph_single,
-	    ap_uint<bw_th> th_single,
+	    ap_uint<1> 		 vl_single,
+	    ap_uint<bw_fph>  ph_single,
+	    ap_uint<bw_th>   th_single,
 
-		ap_uint<30> ptlut_addr [3],
-		ap_uint<32> ptlut_cs [3],
-		ap_uint<3> ptlut_addr_val,
-		ap_uint<bwr+1> bt_rank_o [3],
+		ap_uint<30> 	 ptlut_addr [3],
+		ap_uint<32> 	 ptlut_cs [3],
+		ap_uint<3>  	 *ptlut_addr_val,
+		ap_uint<bwr+1>   bt_rank_o [3],
 
-		ap_uint<8> gmt_phi [3],
-		ap_uint<9> gmt_eta [3],
-		ap_uint<4> gmt_qlt [3],
-		ap_uint<3> gmt_crg,
+		ap_uint<8> 		 gmt_phi [3],
+		ap_uint<9> 		 gmt_eta [3],
+		ap_uint<4> 		 gmt_qlt [3],
+		ap_uint<3> 		 *gmt_crg,
 
-		ap_uint<3> sector,
-		ap_uint<1> endcap){
-#pragma HLS LATENCY max=0
+		ap_uint<3> 		 sector,
+		ap_uint<1> 		 endcap){
+//#pragma HLS LATENCY max=0
 
-
+#pragma HLS INTERFACE ap_ctrl_none port=return
+#pragma HLS INLINE off
+#pragma HLS PIPELINE II=1
     int i;
 
 
@@ -51,22 +52,16 @@ void ptlut::ptlut_address_actual(
     ap_uint<bwr+1>  bt_rank [3];
 
     ap_uint<3>  stA, stB;
-    ap_uint<3> bt_stA, bt_stB;
+    ap_uint<3>  bt_stA, bt_stB;
     ap_uint<3>  dA, dB, dT;
-
-
 
     ap_uint<9> dphi_5bits;
     ap_uint<9> dphi_6bits;
     ap_uint<9> dphi_7bits;
     ap_uint<9> dphi_9bits;
 
-
-
     ap_uint<3>  clctA, clctB;
     ap_uint<1> sign23, sign34;
-
-
 
     // front-rear LUTs
     // [sector[0]][station 0-4][chamber id]
@@ -103,8 +98,6 @@ void ptlut::ptlut_address_actual(
 
 
 
-
-
    const ap_uint<9> th_eta0[128] = init_gmt_eta;
    const ap_uint<9>th_eta1[128] = init_gmt_eta;
    const ap_uint<9> th_eta2 [128]= init_gmt_eta;
@@ -125,627 +118,346 @@ void ptlut::ptlut_address_actual(
 
 
    // fill theta to eta conversion LUT
-    const ap_uint<3>   get_clct_A0 [16]=clct_lut;
-    const ap_uint<3>   get_clct_A1[16] =clct_lut;
-    const ap_uint<3>   get_clct_A2[16] =clct_lut;
-    const ap_uint<3>   get_clct_B0[16] =clct_lut;
-    const ap_uint<3>   get_clct_B1[16]=clct_lut;
-    const ap_uint<3>   get_clct_B2[16] =clct_lut;
+   const ap_uint<3>   get_clct_A0 [16]=clct_lut;
+   const ap_uint<3>   get_clct_A1[16] =clct_lut;
+   const ap_uint<3>   get_clct_A2[16] =clct_lut;
+   const ap_uint<3>   get_clct_B0[16] =clct_lut;
+   const ap_uint<3>   get_clct_B1[16]=clct_lut;
+   const ap_uint<3>   get_clct_B2[16] =clct_lut;
 
 
-    const ap_uint<2>   sign_lut_0[8]=sign_lut;
-    const ap_uint<2>   sign_lut_1 [8]=sign_lut;
-    const ap_uint<2>   sign_lut_2 [8]=sign_lut;
+   const ap_uint<2>   sign_lut_0[8]=sign_lut;
+   const ap_uint<2>   sign_lut_1 [8]=sign_lut;
+   const ap_uint<2>   sign_lut_2 [8]=sign_lut;
 
 
-          for (i = 0; i < 3; i = i+1){
+
+
+   for (i = 0; i < 3; i = i+1){
 #pragma HLS UNROLL
  // best track loop
 
-              bt_rank[i]  = bt_rank_i[i];
-              bt_phi[i]   = bt_phi_i[i];
-              bt_theta[i] = bt_theta_i[i];
-          }
+	  bt_rank[i]  = bt_rank_i[i];
+	  bt_phi[i]   = bt_phi_i[i];
+	  bt_theta[i] = bt_theta_i[i];
+   }
 
-          // insert single if available
-          if (bt_rank[2] == 0 && vl_single == 1){
-              bt_theta[2] = th_single;
-              bt_phi[2] = ph_single;
-              bt_rank[2] = 1;
-          }
-
-
-          // apply theta to eta conversion
-          gmt_eta[0] = th_eta0[bt_theta[0]];
-          gmt_eta[1] = th_eta1[bt_theta[1]];
-          gmt_eta[2] = th_eta2[bt_theta[2]];
+  // insert single if available
+   if (bt_rank[2] == 0 && vl_single == 1){
+	   bt_theta[2] = th_single;
+	   bt_phi[2] = ph_single;
+	   bt_rank[2] = 1;
+   }
 
 
-       //   cout<<"check0"<<endl;
-          for (i = 0; i < 3; i = i+1){
-#pragma HLS DEPENDENCE false
+  // apply theta to eta conversion
+   gmt_eta[0] = th_eta0[bt_theta[0]];
+   gmt_eta[1] = th_eta1[bt_theta[1]];
+   gmt_eta[2] = th_eta2[bt_theta[2]];
+
+   ap_uint<3> a_ptlut_addr_val;
+   ap_uint<3> a_gmt_crg;
+  for (i = 0; i < 3; i = i+1){
+//#pragma HLS DEPENDENCE false
 #pragma HLS UNROLL
  // best track loop
 
-              // convert phi into gmt scale according to DN15-017
-              // full scale is -16 to 100, or 116 values, covers range -10 to 62.5 deg
-              // my internal ph scale is 0..5000, covers from -22 to 63.333 deg
-              // converted to GMT scale it is from -35 to 95
-              // bt_phi * 107.01/4096, equivalent to bt_phi * 6849/0x40000
-              gmt_phi_mult[i] = bt_phi[i] * 6849;
-              gmt_phi[i] = gmt_phi_mult[i](25,18); // divide by 0x40000
-              gmt_phi[i] = gmt_phi[i] - 35; // offset of -22 deg
+	  // convert phi into gmt scale according to DN15-017
+	  // full scale is -16 to 100, or 116 values, covers range -10 to 62.5 deg
+	  // my internal ph scale is 0..5000, covers from -22 to 63.333 deg
+	  // converted to GMT scale it is from -35 to 95
+	  // bt_phi * 107.01/4096, equivalent to bt_phi * 6849/0x40000
+	  gmt_phi_mult[i] = bt_phi[i] * 6849;
+	  gmt_phi[i] = gmt_phi_mult[i](25,18); // divide by 0x40000
+	  gmt_phi[i] = gmt_phi[i] - 35; // offset of -22 deg
 
-              if (endcap == 1) gmt_eta[i] = ~gmt_eta[i]; // if negative endcap invert eta
+	  if (endcap == 1) gmt_eta[i] = ~gmt_eta[i]; // if negative endcap invert eta
 
-              mode[i] = (bt_rank[i][0], bt_rank[i][1], bt_rank[i][3], bt_rank[i][5]);
+	  mode[i] = (bt_rank[i][0], bt_rank[i][1], bt_rank[i][3], bt_rank[i][5]);
 
-              ptlut_addr_val[i] = bt_rank[i] != 0; // address valid if rank is non-zero
+	  a_ptlut_addr_val[i] = bt_rank[i] != 0; // address valid if rank is non-zero
 
   //            stA = 3'h0; stB = 3'h0; dA = 3'h0; dB = 3'h0; dT = 3'h0;
-              ptlut_addr[i] = 0;
-              ptlut_cs[i] = 0xffffffff;
-
-              if (ptlut_addr_val[i]){
-                  // depending on mode, decide which stations and differences to use in PT LUT address
-                  switch(mode[i]){
-                  case 8:   stA = 0; stB =  0; dA =  0;  // single hit trigger
-                  break;
-                  case 3:   stA = 0; stB =  1; dA =  0;  // 1-2
-                  break;
-                  case 5:   stA = 0; stB =  2; dA =  1;  // 1-3
-                  break;
-                  case 9:   stA = 0; stB =  3; dA =  2;  // 1-4
-                  break;
-                  case 6:   stA = 1; stB =  2; dA =  3;  // 2-3
-                  break;
-                  case 10:  stA = 1; stB =  3; dA =  4;  // 2-4
-                  break;
-                  case 12:  stA = 2; stB =  3; dA =  5;  // 3-4
-                  break;
-                  case 7:   dA = 0; dB =  3; dT =  1;  // 1-2-3
-                  break;
-                  case 11:  dA = 0; dB =  4; dT =  2;  // 1-2-4
-                  break;
-                  case 13:  dA = 1; dB =  5; dT =  2;  // 1-3-4
-                  break;
-                  }
-
-                  switch(mode[i]){
-                  case 3: // two-stub tracks
-
-                          // find valid chamber ID from station 1
-                          if (stA == 0 && bt_vi[i][0] != 0){
-                              bt_stA = stA;
-                              chA = bt_ci[i][0];
-                          }
-                          else{
-                              bt_stA = stA + 1;
-                              chA = bt_ci[i][bt_stA];
-                          }
-
-                          bt_stB = stB + 1;
-                          chB = bt_ci[i][bt_stB];
-
-                          switch(i){
-                          case 0:    clctB = get_clct_B0[bt_cpattern[i][stB]]; clctA = get_clct_A0[bt_cpattern[i][stA]]; break;
-                          case 1:    clctB = get_clct_B1[bt_cpattern[i][stB]]; clctA = get_clct_A1[bt_cpattern[i][stA]]; break;
-                          case 2:    clctB = get_clct_B2[bt_cpattern[i][stB]]; clctA = get_clct_A2[bt_cpattern[i][stA]]; break;
-                          }
-
-                          dphi_9bits = bt_delta_ph[i][dA] > 511 ? 511 : bt_delta_ph[i][dA](8,0);
-
-                          ptlut_addr[i] =
-                          (
-                              mode[i],
-                              bt_theta[i](6,2), // send theta instead of eta
-                              fr [sector[0]][bt_stB][chB],
-                              fr [sector[0]][bt_stA][chA],
-                              clctB, // including sign
-                              clctA, // including sign
-                              get_d_th(bt_delta_th[i][dA], bt_sign_th[i][dA]),
-                              bt_sign_ph[i][dA],
-                              dphi_9bits
-                          );
-
-                      break;
-
-
-                  case 5: // two-stub tracks
-
-                          // find valid chamber ID from station 1
-                          if (stA == 0 && bt_vi[i][0] != 0){
-                              bt_stA = stA;
-                              chA = bt_ci[i][0];
-                          }
-                          else{
-                              bt_stA = stA + 1;
-                              chA = bt_ci[i][bt_stA];
-                          }
-
-                          bt_stB = stB + 1;
-                          chB = bt_ci[i][bt_stB];
-
-                          switch(i){
-                          case 0:    clctB = get_clct_B0[bt_cpattern[i][stB]]; clctA = get_clct_A0[bt_cpattern[i][stA]]; break;
-                          case 1:    clctB = get_clct_B1[bt_cpattern[i][stB]]; clctA = get_clct_A1[bt_cpattern[i][stA]]; break;
-                          case 2:    clctB = get_clct_B2[bt_cpattern[i][stB]]; clctA = get_clct_A2[bt_cpattern[i][stA]]; break;
-                          }
-
-                          dphi_9bits = (bt_delta_ph[i][dA] > 511) ? 511 : bt_delta_ph[i][dA](8,0);
-
-                          ptlut_addr[i] =
-                          (
-                              mode[i],
-                              bt_theta[i](6,2), // send theta instead of eta
-                              fr [sector[0]][bt_stB][chB],
-                              fr [sector[0]][bt_stA][chA],
-                              clctB, // including sign
-                              clctA, // including sign
-                              get_d_th(bt_delta_th[i][dA], bt_sign_th[i][dA]),
-                              bt_sign_ph[i][dA],
-                              dphi_9bits
-                          );
-                      break;
-
-
-                  case 9: // two-stub tracks
-
-                          // find valid chamber ID from station 1
-                          if (stA == 0 && bt_vi[i][0] != 0){
-                              bt_stA = stA;
-                              chA = bt_ci[i][0];
-                          }
-                          else{
-                              bt_stA = stA + 1;
-                              chA = bt_ci[i][bt_stA];
-                          }
-
-                          bt_stB = stB + 1;
-                          chB = bt_ci[i][bt_stB];
-
-                          switch(i){
-                          case 0:    clctB = get_clct_B0[bt_cpattern[i][stB]]; clctA = get_clct_A0[bt_cpattern[i][stA]]; break;
-                          case 1:    clctB = get_clct_B1[bt_cpattern[i][stB]]; clctA = get_clct_A1[bt_cpattern[i][stA]]; break;
-                          case 2:    clctB = get_clct_B2[bt_cpattern[i][stB]]; clctA = get_clct_A2[bt_cpattern[i][stA]]; break;
-                          }
-
-                          dphi_9bits = bt_delta_ph[i][dA] > 511 ? 511 : bt_delta_ph[i][dA](8,0);
-
-                          ptlut_addr[i] =
-                          (
-                              mode[i],
-                              bt_theta[i](6,2), // send theta instead of eta
-                              fr [sector[0]][bt_stB][chB],
-                              fr [sector[0]][bt_stA][chA],
-                              clctB, // including sign
-                              clctA, // including sign
-                              get_d_th(bt_delta_th[i][dA], bt_sign_th[i][dA]),
-                              bt_sign_ph[i][dA],
-                              dphi_9bits
-                          );
-                      break;
-
-
-                  case 6: // two-stub tracks
-
-                          // find valid chamber ID from station 1
-                          if (stA == 0 && bt_vi[i][0] != 0){
-                              bt_stA = stA;
-                              chA = bt_ci[i][0];
-                          }
-                          else{
-                              bt_stA = stA + 1;
-                              chA = bt_ci[i][bt_stA];
-                          }
-
-                          bt_stB = stB + 1;
-                          chB = bt_ci[i][bt_stB];
-
-                          switch(i){
-                          case 0:    clctB = get_clct_B0[bt_cpattern[i][stB]]; clctA = get_clct_A0[bt_cpattern[i][stA]]; break;
-                          case 1:    clctB = get_clct_B1[bt_cpattern[i][stB]]; clctA = get_clct_A1[bt_cpattern[i][stA]]; break;
-                          case 2:    clctB = get_clct_B2[bt_cpattern[i][stB]]; clctA = get_clct_A2[bt_cpattern[i][stA]]; break;
-                          }
-
-                          dphi_9bits = bt_delta_ph[i][dA] > 511 ? 511 : bt_delta_ph[i][dA](8,0);
-
-                          ptlut_addr[i] =
-                          (
-                              mode[i],
-                              bt_theta[i](6,2), // send theta instead of eta
-                              fr [sector[0]][bt_stB][chB],
-                              fr [sector[0]][bt_stA][chA],
-                              clctB, // including sign
-                              clctA, // including sign
-                              get_d_th(bt_delta_th[i][dA], bt_sign_th[i][dA]),
-                              bt_sign_ph[i][dA],
-                              dphi_9bits
-                          );
-                      break;
-
-
-                  case 10: // two-stub tracks
-
-                          // find valid chamber ID from station 1
-                          if (stA == 0 && bt_vi[i][0] != 0){
-                              bt_stA = stA;
-                              chA = bt_ci[i][0];
-                          }
-                          else{
-                              bt_stA = stA + 1;
-                              chA = bt_ci[i][bt_stA];
-                          }
-
-                          bt_stB = stB + 1;
-                          chB = bt_ci[i][bt_stB];
-
-                          switch(i){
-                          case 0:    clctB = get_clct_B0[bt_cpattern[i][stB]]; clctA = get_clct_A0[bt_cpattern[i][stA]]; break;
-                          case 1:    clctB = get_clct_B1[bt_cpattern[i][stB]]; clctA = get_clct_A1[bt_cpattern[i][stA]]; break;
-                          case 2:    clctB = get_clct_B2[bt_cpattern[i][stB]]; clctA = get_clct_A2[bt_cpattern[i][stA]]; break;
-                          }
-
-                          dphi_9bits = bt_delta_ph[i][dA] > 511 ? 511 : bt_delta_ph[i][dA](8,0);
-
-                          ptlut_addr[i] =
-                          (
-                              mode[i],
-                              bt_theta[i](6,2), // send theta instead of eta
-                              fr [sector[0]][bt_stB][chB],
-                              fr [sector[0]][bt_stA][chA],
-                              clctB, // including sign
-                              clctA, // including sign
-                              get_d_th(bt_delta_th[i][dA], bt_sign_th[i][dA]),
-                              bt_sign_ph[i][dA],
-                              dphi_9bits
-                          );
-                      break;
-
-
-                  case 12: // two-stub tracks
-
-                          // find valid chamber ID from station 1
-                          if (stA == 0 && bt_vi[i][0] != 0){
-                              bt_stA = stA;
-                              chA = bt_ci[i][0];
-                          }
-                          else{
-                              bt_stA = stA + 1;
-                              chA = bt_ci[i][bt_stA];
-                          }
-
-                          bt_stB = stB + 1;
-                          chB = bt_ci[i][bt_stB];
-
-                          switch(i){
-                          case 0:    clctB = get_clct_B0[bt_cpattern[i][stB]]; clctA = get_clct_A0[bt_cpattern[i][stA]]; break;
-                          case 1:    clctB = get_clct_B1[bt_cpattern[i][stB]]; clctA = get_clct_A1[bt_cpattern[i][stA]]; break;
-                          case 2:    clctB = get_clct_B2[bt_cpattern[i][stB]]; clctA = get_clct_A2[bt_cpattern[i][stA]]; break;
-                          }
-
-                          dphi_9bits = bt_delta_ph[i][dA] > 511 ? 511 : bt_delta_ph[i][dA](8,0);
-
-                          ptlut_addr[i] =
-                          (
-                              mode[i],
-                              bt_theta[i](6,2), // send theta instead of eta
-                              fr [sector[0]][bt_stB][chB],
-                              fr [sector[0]][bt_stA][chA],
-                              clctB, // including sign
-                              clctA, // including sign
-                              get_d_th(bt_delta_th[i][dA], bt_sign_th[i][dA]),
-                              bt_sign_ph[i][dA],
-                              dphi_9bits
-                          );
-                      break;
-
-
-
-                          case 7: // three-stub tracks
-
-                              // find valid chamber ID from station 1
-                              stA = 0;
-                              if (bt_vi[i][0] != 0){
-
-                                  bt_stA = 0;
-                                  chA = bt_ci[i][0];
-                              }
-                              else
-                              {
-                                  bt_stA = 1;
-                                  chA = bt_ci[i][1];
-                              }
-      //                        chA = bt_ci[i][stA];
-
-                              // limit the maximum LUT indexes
-                              dphi_5bits = bt_delta_ph[i][dB] > 511 ? ap_uint<9>(511) :ap_uint<9>( bt_delta_ph[i][dB]);
-                              dphi_7bits = bt_delta_ph[i][dA] > 511 ? ap_uint<9>(511) :ap_uint<9>(bt_delta_ph[i][dA]);
-                              // compress delta phi
-                              switch(i){
-                              case 0: dphiA = phi_7b_0[dphi_7bits]; dphiB = phi_5b_0[dphi_5bits]; break;
-                              case 1:  dphiA = phi_7b_1[dphi_7bits]; dphiB = phi_5b_1[dphi_5bits]; break;
-                              case 2:  dphiA = phi_7b_2[dphi_7bits]; dphiB = phi_5b_2[dphi_5bits]; break;
-                              }
-
-                              switch(i){
-                              case 0:  clctA = get_clct_A0[bt_cpattern[i][0]]; break;
-                              case 1:  clctA = get_clct_A1[bt_cpattern[i][0]]; break;
-                              case 2:  clctA = get_clct_A2[bt_cpattern[i][0]]; break;
-                      	  	  }
-
-                              ptlut_addr[i] =
-                              (
-                                  mode[i],
-                                  bt_theta[i](6,2), // send theta instead of eta
-                                  fr [sector[0]][bt_stA][chA],
-                                  clctA, // including sign
-                                  get_d_th(bt_delta_th[i][dT], bt_sign_th[i][dT]),
-                                  bt_sign_ph[i][dB],
-                                  bt_sign_ph[i][dA],
-                                  dphiB,
-                                  dphiA
-                              );
-                          break;
-
-
-                          case 11: // three-stub tracks
-
-                              // find valid chamber ID from station 1
-                              stA = 0;
-                              if (bt_vi[i][0] != 0){
-
-                                  bt_stA = 0;
-                                  chA = bt_ci[i][0];
-                              }
-                              else
-                              {
-                                  bt_stA = 1;
-                                  chA = bt_ci[i][1];
-                              }
-      //                        chA = bt_ci[i][stA];
-
-                              // limit the maximum LUT indexes
-                              dphi_5bits = bt_delta_ph[i][dB] > 511 ? ap_uint<9>(511) :ap_uint<9>( bt_delta_ph[i][dB]);
-                              dphi_7bits = bt_delta_ph[i][dA] > 511 ? ap_uint<9>(511) : ap_uint<9>(bt_delta_ph[i][dA]);
-
-                              // compress delta phi
-                              switch(i){
-                              case 0: dphiA = phi_7b_0[dphi_7bits]; dphiB = phi_5b_0[dphi_5bits]; break;
-                              case 1:  dphiA = phi_7b_1[dphi_7bits]; dphiB = phi_5b_1[dphi_5bits]; break;
-                              case 2:  dphiA = phi_7b_2[dphi_7bits]; dphiB = phi_5b_2[dphi_5bits]; break;
-                              }
-
-                              switch(i){
-                              case 0:  clctA = get_clct_A0[bt_cpattern[i][0]]; break;
-                              case 1:  clctA = get_clct_A1[bt_cpattern[i][0]]; break;
-                              case 2:  clctA = get_clct_A2[bt_cpattern[i][0]]; break;
-                      	  	  }
-
-                              ptlut_addr[i] =
-                              (
-                                  mode[i],
-                                  bt_theta[i](6,2), // send theta instead of eta
-                                  fr [sector[0]][bt_stA][chA],
-                                  clctA, // including sign
-                                  get_d_th(bt_delta_th[i][dT], bt_sign_th[i][dT]),
-                                  bt_sign_ph[i][dB],
-                                  bt_sign_ph[i][dA],
-                                  dphiB,
-                                  dphiA
-                              );
-
-                          break;
-
-
-                          case 13: // three-stub tracks
-
-                              // find valid chamber ID from station 1
-                              stA = 0;
-                              if (bt_vi[i][0] != 0){
-
-                                  bt_stA = 0;
-                                  chA = bt_ci[i][0];
-                              }
-                              else
-                              {
-                                  bt_stA = 1;
-                                  chA = bt_ci[i][1];
-                              }
-      //                        chA = bt_ci[i][stA];
-
-                              // limit the maximum LUT indexes
-                              dphi_5bits = bt_delta_ph[i][dB] > 511 ? ap_uint<9>(511) : ap_uint<9>(bt_delta_ph[i][dB]);
-                              dphi_7bits = bt_delta_ph[i][dA] > 511 ? ap_uint<9>(511) : ap_uint<9>(bt_delta_ph[i][dA]);
-                              // compress delta phi
-                              switch(i){
-                              case 0: dphiA = phi_7b_0[dphi_7bits]; dphiB = phi_5b_0[dphi_5bits]; break;
-                              case 1:  dphiA = phi_7b_1[dphi_7bits]; dphiB = phi_5b_1[dphi_5bits]; break;
-                              case 2:  dphiA = phi_7b_2[dphi_7bits]; dphiB = phi_5b_2[dphi_5bits]; break;
-                              }
-
-                              switch(i){
-                              case 0:  clctA = get_clct_A0[bt_cpattern[i][0]]; break;
-                              case 1:  clctA = get_clct_A1[bt_cpattern[i][0]]; break;
-                              case 2:  clctA = get_clct_A2[bt_cpattern[i][0]]; break;
-                      	  	  }
-
-                              ptlut_addr[i] =
-                              (
-                                  mode[i],
-                                  bt_theta[i](6,2), // send theta instead of eta
-                                  fr [sector[0]][bt_stA][chA],
-                                  clctA, // including sign
-                                  get_d_th(bt_delta_th[i][dT], bt_sign_th[i][dT]),
-                                  bt_sign_ph[i][dB],
-                                  bt_sign_ph[i][dA],
-                                  dphiB,
-                                  dphiA
-                              );
-                          break;
-
-                      case 14: // 2-3-4 special case
-
-                          // limit the maximum LUT indexes
-                          dphi_6bits = bt_delta_ph[i][5] > 511 ? ap_uint<9>(511) : ap_uint<9>(bt_delta_ph[i][5]);
-                          dphi_7bits = bt_delta_ph[i][3] > 511 ? ap_uint<9>(511) : ap_uint<9>(bt_delta_ph[i][3]);
-                          // compress delta phi
-                          switch (i){
-                          case 0:  dphiA = phi_7b_0[dphi_7bits]; dphiC = phi_6b_0[dphi_6bits]; break;
-                          case 1:  dphiA = phi_7b_1[dphi_7bits]; dphiC = phi_6b_1[dphi_6bits]; break;
-                          case 2:  dphiA = phi_7b_2[dphi_7bits]; dphiC = phi_6b_2[dphi_6bits]; break;
-                          }
-
-                          switch(i){
-                          case 0:  clctA = get_clct_A0[bt_cpattern[i][1]]; break;
-                          case 1:  clctA = get_clct_A1[bt_cpattern[i][1]]; break;
-                          case 2:  clctA = get_clct_A2[bt_cpattern[i][1]]; break;
-                          }
-
-
-                          ptlut_addr[i] =
-                          (
-                              mode[i],
-                              bt_theta[i](6,2), // send theta instead of eta
-                              clctA, // including sign
-                              get_d_th(bt_delta_th[i][4], bt_sign_th[i][4]),
-                              bt_sign_ph[i][5],
-                              bt_sign_ph[i][3],
-                              dphiC,
-                              dphiA
-                          );
-
-                      break;
-
-                      case 15: // 1-2-3-4 special case
-
-                          // find valid chamber ID from station 1
-                          if (bt_vi[i][0] != 0){
-                              bt_stA = 0;
-                              chA = bt_ci[i][0];
-                          }
-                          else
-                          {
-                              bt_stA = 1;
-                              chA = bt_ci[i][1];
-                          }
-  //                        chA = bt_ci[i][stA];
-
-                          // limit the maximum LUT indexes
-                          dphi_5bits = (bt_delta_ph[i][3] > 511) ? ap_uint<9>(511) :ap_uint<9>( bt_delta_ph[i][3]);
-                          dphi_6bits = (bt_delta_ph[i][5] > 511) ? ap_uint<9>(511) :ap_uint<9>( bt_delta_ph[i][5]);
-                          dphi_7bits = (bt_delta_ph[i][0] > 511) ? ap_uint<9>(511) : ap_uint<9>(bt_delta_ph[i][0]);
-                          // compress delta phi
-                          switch(i){
-                          case 0:  dphiA = phi_7b_0[dphi_7bits]; dphiB = phi_5b_0[dphi_5bits]; dphiC = phi_6b_0[dphi_6bits]; break;
-                          case 1:  dphiA = phi_7b_1[dphi_7bits]; dphiB = phi_5b_1[dphi_5bits]; dphiC = phi_6b_1[dphi_6bits]; break;
-                          case 2:  dphiA = phi_7b_2[dphi_7bits]; dphiB = phi_5b_2[dphi_5bits]; dphiC = phi_6b_2[dphi_6bits]; break;
-                          }
-
-                          // calculate two signs based on three input signs
-                          switch(i){
-                          case 0:  (sign23, sign34) = sign_lut_0 [(bt_sign_ph[i][0], bt_sign_ph[i][3], bt_sign_ph[i][5])]; break;
-                          case 1:  (sign23, sign34) = sign_lut_1 [(bt_sign_ph[i][0], bt_sign_ph[i][3], bt_sign_ph[i][5])]; break;
-                          case 2:  (sign23, sign34) = sign_lut_2 [(bt_sign_ph[i][0], bt_sign_ph[i][3], bt_sign_ph[i][5])]; break;
-                          }
-
-
-                          ptlut_addr[i] =
-                          (
-                              mode[i],
-                              bt_theta[i](6,2), // send theta instead of eta
-                              fr [sector[0]][bt_stA][chA],
-                              sign34,
-                              sign23,
-                              dphiC,
-                              dphiB,
-                              dphiA
-                          );
-
-                      break;
-
-                      case 8: // single hit trigger
-
-                          ptlut_addr[i] = 0;
-                      break;
-
-                      default: break;
-                  }
-
-
-
-
-
-
-
-
-                  // pre-decode chip selects
-                  ptlut_cs[i][(ptlut_addr[i](29,26), 0)] = 0; // one chip, in the lower 1GB only
-              }
-              else{
-
-                  ptlut_addr[i] = 0;
-                  ptlut_cs[i] = 0xffffffff;
-              }
-
-              // Matt's code for GMT quality assignment, message from 2016-03-24
-              // reverse mode bits because this is what Matt's code is using as initial q code
-              mode_rev = (mode[i][0], mode[i][1], mode[i][2], mode[i][3]);
-              mode_lsb = mode_rev(1,0);
-
-              if(bt_theta[i] > 87 && mode_rev == 15){
-                 gmt_qlt[i] = 8;
-              }
-              else if(bt_theta[i] > 87 && mode_rev < 15){
-                 gmt_qlt[i] = 4;
-              }
-              else
-              {
-
-                 switch(mode_rev){
-                 case 15:    gmt_qlt[i] = 12; break;
-                 case 14:    gmt_qlt[i] = 12; break;
-                 case 13:    gmt_qlt[i] = 12; break;
-                 case 12:    gmt_qlt[i] = 8;  break;
-                 case 11:    gmt_qlt[i] = 12; break;
-                 case 10:    gmt_qlt[i] = 8;  break;
-                 case 7 :    gmt_qlt[i] = 8;  break;
+	  ptlut_addr[i] = 0;
+	  ptlut_cs[i] = 0xffffffff;
+
+	  if (a_ptlut_addr_val[i]){
+		  // depending on mode, decide which stations and differences to use in PT LUT address
+		  switch(mode[i]){
+		  	  case 8:   stA = 0; stB =  0; dA =  0;  // single hit trigger
+		  	  break;
+		  	  case 3:   stA = 0; stB =  1; dA =  0;  // 1-2
+		  	  break;
+		  	  case 5:   stA = 0; stB =  2; dA =  1;  // 1-3
+		  	  break;
+		  	  case 9:   stA = 0; stB =  3; dA =  2;  // 1-4
+		  	  break;
+		  	  case 6:   stA = 1; stB =  2; dA =  3;  // 2-3
+		  	  break;
+		  	  case 10:  stA = 1; stB =  3; dA =  4;  // 2-4
+		  	  break;
+		  	  case 12:  stA = 2; stB =  3; dA =  5;  // 3-4
+		  	  break;
+		  	  case 7:   dA = 0; dB =  3; dT =  1;  // 1-2-3
+		  	  break;
+		  	  case 11:  dA = 0; dB =  4; dT =  2;  // 1-2-4
+		  	  break;
+		  	  case 13:  dA = 1; dB =  5; dT =  2;  // 1-3-4
+		  	  break;
+		  	  default:break;
+		  }
+
+		  //switch(mode[i]){
+		  if(mode[i]==3 || mode[i]==5 || mode[i]==9 || mode[i]==6 || mode[i]==10 || mode[i]==12){ // two-stub tracks
+
+			  // find valid chamber ID from station 1
+			  if (stA == 0 && bt_vi[i][0] != 0){
+				  bt_stA = stA;
+				  chA = bt_ci[i][0];
+			  }
+			  else{
+				  bt_stA = stA + 1;
+				  chA = bt_ci[i][bt_stA];
+			  }
+
+			  bt_stB = stB + 1;
+			  chB = bt_ci[i][bt_stB];
+			  switch(i){
+			  	  case 0:    clctB = get_clct_B0[bt_cpattern[i][stB]]; clctA = get_clct_A0[bt_cpattern[i][stA]]; break;
+			  	  case 1:    clctB = get_clct_B1[bt_cpattern[i][stB]]; clctA = get_clct_A1[bt_cpattern[i][stA]]; break;
+			  	  case 2:    clctB = get_clct_B2[bt_cpattern[i][stB]]; clctA = get_clct_A2[bt_cpattern[i][stA]]; break;
+			  	  default:break;
+			  }
+
+              dphi_9bits = bt_delta_ph[i][dA] > 511 ? 511 : bt_delta_ph[i][dA](8,0);
+
+              ptlut_addr[i] =
+            		  (
+					  mode[i],
+					  bt_theta[i](6,2), // send theta instead of eta
+					  fr [sector[0]][bt_stB][chB],
+					  fr [sector[0]][bt_stA][chA],
+					  clctB, // including sign
+					  clctA, // including sign
+					  get_d_th(bt_delta_th[i][dA], bt_sign_th[i][dA]),
+					  bt_sign_ph[i][dA],
+					  dphi_9bits
+            		  );
+
+		  }
+
+
+	  if(mode[i]==7 || mode[i]==11 || mode[i]==13){ // three-stub tracks
+
+	  // find valid chamber ID from station 1
+	  stA = 0;
+	  	  if (bt_vi[i][0] != 0){
+	  		  bt_stA = 0;
+			  chA = bt_ci[i][0];
+		  }
+		  else
+		  {
+		  bt_stA = 1;
+		  chA = bt_ci[i][1];
+		  }
+
+
+	  // limit the maximum LUT indexes
+	  dphi_5bits = bt_delta_ph[i][dB] > 511 ? ap_uint<9>(511) :ap_uint<9>( bt_delta_ph[i][dB]);
+	  dphi_7bits = bt_delta_ph[i][dA] > 511 ? ap_uint<9>(511) :ap_uint<9>(bt_delta_ph[i][dA]);
+	  // compress delta phi
+	  switch(i){
+		  case 0: dphiA = phi_7b_0[dphi_7bits]; dphiB = phi_5b_0[dphi_5bits]; break;
+		  case 1:  dphiA = phi_7b_1[dphi_7bits]; dphiB = phi_5b_1[dphi_5bits]; break;
+		  case 2:  dphiA = phi_7b_2[dphi_7bits]; dphiB = phi_5b_2[dphi_5bits]; break;
+	  }
+
+	  switch(i){
+	  	  case 0:  clctA = get_clct_A0[bt_cpattern[i][0]]; break;
+	  	  case 1:  clctA = get_clct_A1[bt_cpattern[i][0]]; break;
+	  	  case 2:  clctA = get_clct_A2[bt_cpattern[i][0]]; break;
+	  default:break;
+	  }
+
+	  ptlut_addr[i] =
+			  (
+				  mode[i],
+				  bt_theta[i](6,2), // send theta instead of eta
+				  fr [sector[0]][bt_stA][chA],
+				  clctA, // including sign
+				  get_d_th(bt_delta_th[i][dT], bt_sign_th[i][dT]),
+				  bt_sign_ph[i][dB],
+				  bt_sign_ph[i][dA],
+				  dphiB,
+				  dphiA
+			  );
+	  }
+
+
+
+	  if(mode[i]==14){ // 2-3-4 special case
+
+	// limit the maximum LUT indexes
+	  dphi_6bits = bt_delta_ph[i][5] > 511 ? ap_uint<9>(511) : ap_uint<9>(bt_delta_ph[i][5]);
+	  dphi_7bits = bt_delta_ph[i][3] > 511 ? ap_uint<9>(511) : ap_uint<9>(bt_delta_ph[i][3]);
+	  // compress delta phi
+	  switch (i){
+		  case 0:  dphiA = phi_7b_0[dphi_7bits]; dphiC = phi_6b_0[dphi_6bits]; break;
+		  case 1:  dphiA = phi_7b_1[dphi_7bits]; dphiC = phi_6b_1[dphi_6bits]; break;
+		  case 2:  dphiA = phi_7b_2[dphi_7bits]; dphiC = phi_6b_2[dphi_6bits]; break;
+		  default:break;
+	  }
+
+	  switch(i){
+	  	  case 0:  clctA = get_clct_A0[bt_cpattern[i][1]]; break;
+	  	  case 1:  clctA = get_clct_A1[bt_cpattern[i][1]]; break;
+	  	  case 2:  clctA = get_clct_A2[bt_cpattern[i][1]]; break;
+	  	  default:break;
+	  }
+
+
+	  ptlut_addr[i] =
+				  (
+					  mode[i],
+					  bt_theta[i](6,2), // send theta instead of eta
+					  clctA, // including sign
+					  get_d_th(bt_delta_th[i][4], bt_sign_th[i][4]),
+					  bt_sign_ph[i][5],
+					  bt_sign_ph[i][3],
+					  dphiC,
+					  dphiA
+                          	  );
+
+	  }
+
+
+
+
+	  if(mode[i]==15){ // 1-2-3-4 special case
+
+	  // find valid chamber ID from station 1
+	  if (bt_vi[i][0] != 0){
+		  bt_stA = 0;
+		  chA = bt_ci[i][0];
+	  }
+	  else
+	  {
+		  bt_stA = 1;
+		  chA = bt_ci[i][1];
+	  }
+
+	  // limit the maximum LUT indexes
+	  dphi_5bits = (bt_delta_ph[i][3] > 511) ? ap_uint<9>(511) :ap_uint<9>( bt_delta_ph[i][3]);
+	  dphi_6bits = (bt_delta_ph[i][5] > 511) ? ap_uint<9>(511) :ap_uint<9>( bt_delta_ph[i][5]);
+	  dphi_7bits = (bt_delta_ph[i][0] > 511) ? ap_uint<9>(511) : ap_uint<9>(bt_delta_ph[i][0]);
+	  // compress delta phi
+	  switch(i){
+	  	  case 0:  dphiA = phi_7b_0[dphi_7bits]; dphiB = phi_5b_0[dphi_5bits]; dphiC = phi_6b_0[dphi_6bits]; break;
+	  	  case 1:  dphiA = phi_7b_1[dphi_7bits]; dphiB = phi_5b_1[dphi_5bits]; dphiC = phi_6b_1[dphi_6bits]; break;
+	  	  case 2:  dphiA = phi_7b_2[dphi_7bits]; dphiB = phi_5b_2[dphi_5bits]; dphiC = phi_6b_2[dphi_6bits]; break;
+	  }
+
+	  // calculate two signs based on three input signs
+	  switch(i){
+	  	  case 0:  (sign23, sign34) = sign_lut_0 [(bt_sign_ph[i][0], bt_sign_ph[i][3], bt_sign_ph[i][5])]; break;
+	  	  case 1:  (sign23, sign34) = sign_lut_1 [(bt_sign_ph[i][0], bt_sign_ph[i][3], bt_sign_ph[i][5])]; break;
+	  	  case 2:  (sign23, sign34) = sign_lut_2 [(bt_sign_ph[i][0], bt_sign_ph[i][3], bt_sign_ph[i][5])]; break;
+	  }
+
+
+	  ptlut_addr[i] =
+			  (
+				  mode[i],
+				  bt_theta[i](6,2), // send theta instead of eta
+				  fr [sector[0]][bt_stA][chA],
+				  sign34,
+				  sign23,
+				  dphiC,
+				  dphiB,
+				  dphiA
+			  );
+
+	  }
+
+
+
+
+
+	  if(mode[i]==8){ // single hit trigger
+		ptlut_addr[i] = 0;
+	  }
+
+	  // pre-decode chip selects
+	  ptlut_cs[i][(ptlut_addr[i](29,26), 0)] = 0; // one chip, in the lower 1GB only
+ }//if(ptlut_addr_val[i])
+  else{
+
+	  ptlut_addr[i] = 0;
+	  ptlut_cs[i] = 0xffffffff;
+  }
+
+	  // Matt's code for GMT quality assignment, message from 2016-03-24
+	  // reverse mode bits because this is what Matt's code is using as initial q code
+		  mode_rev = (mode[i][0], mode[i][1], mode[i][2], mode[i][3]);
+		  mode_lsb = mode_rev(1,0);
+
+		  if(bt_theta[i] > 87 && mode_rev == 15){
+			 gmt_qlt[i] = 8;
+		  }
+		  else if(bt_theta[i] > 87 && mode_rev < 15){
+			  gmt_qlt[i] = 4;
+		  }
+		  else
+		  {
+
+			  switch(mode_rev){
+			  	  case 15:    gmt_qlt[i] = 12; break;
+			  	  case 14:    gmt_qlt[i] = 12; break;
+			  	  case 13:    gmt_qlt[i] = 12; break;
+			  	  case 12:    gmt_qlt[i] = 8;  break;
+			  	  case 11:    gmt_qlt[i] = 12; break;
+			  	  case 10:    gmt_qlt[i] = 8;  break;
+			  	  case 7 :    gmt_qlt[i] = 8;  break;
                   default:    gmt_qlt[i] =4; break;
-                 }
+			 }
 
-              }
-              gmt_qlt[i](1,0) = mode_lsb;
+		  }
 
-              if(mode_rev == 1) // single LCT trigger
-                 gmt_qlt[i] = 0;
+		  gmt_qlt[i](1,0) = mode_lsb;
+
+		  if(mode_rev == 1) // single LCT trigger
+			 gmt_qlt[i] = 0;
+
+	  // end Matt's code
+
+
+
+	  // Matt's code for GMT charge assignment, message from 2016-04-21
+
+		  switch(mode_rev){
+		  	  case 15:    if ((bt_sign_ph[i][0] == 1) || (bt_delta_ph[i][0] == 0 && bt_sign_ph[i][1] ==  0) || (bt_delta_ph[i][1] == 0x0 && bt_sign_ph[i][2] ==  0)) a_gmt_crg[i] =  1; else a_gmt_crg[i] =  0; break;
+		  	  case 14:    if ((bt_sign_ph[i][0] == 0) || (bt_delta_ph[i][0] == 0 && bt_sign_ph[i][1] ==  0)) a_gmt_crg[i] =  0; else a_gmt_crg[i] =  1; break;
+		  	  case 13:    if ((bt_sign_ph[i][0] == 1) || (bt_delta_ph[i][0] == 0 && bt_sign_ph[i][2] ==  0)) a_gmt_crg[i] =  1; else a_gmt_crg[i] =  0; break;
+		  	  case 12:    if  (bt_sign_ph[i][0] == 1) a_gmt_crg[i] =  1; else a_gmt_crg[i] =  0; break;
+		  	  case 11:    if ((bt_sign_ph[i][1] ==  1) || (bt_delta_ph[i][1] == 0 && bt_sign_ph[i][2] ==  0)) a_gmt_crg[i] =  1; else a_gmt_crg[i] =  0; break;
+		  	  case 10:    if  (bt_sign_ph[i][1] ==  1) a_gmt_crg[i] =  1; else a_gmt_crg[i] =  0; break;
+		  	  case 9:     if  (bt_sign_ph[i][2] ==  1) a_gmt_crg[i] =  1; else a_gmt_crg[i] =  0; break;
+		  	  case 7:     if ((bt_sign_ph[i][3] ==  1) || (bt_delta_ph[i][3] == 0 && bt_sign_ph[i][4] ==  0)) a_gmt_crg[i] =  1; else a_gmt_crg[i] =  0; break;
+		  	  case 6:     if  (bt_sign_ph[i][3] ==  1) a_gmt_crg[i] =  1; else a_gmt_crg[i] =  0; break;
+		  	  case 5:     if  (bt_sign_ph[i][4] ==  1) a_gmt_crg[i] =  1; else a_gmt_crg[i] =  0; break;
+		  	  case 3:     if  (bt_sign_ph[i][5] ==  1) a_gmt_crg[i] =  1; else a_gmt_crg[i] =  0; break;
+		  	  default:    a_gmt_crg[i] =  0; break;
+		  }
 
               // end Matt's code
-
-              // Matt's code for GMT charge assignment, message from 2016-04-21
-
-              switch(mode_rev){
-                  case 15:    if ((bt_sign_ph[i][0] == 1) || (bt_delta_ph[i][0] == 0 && bt_sign_ph[i][1] ==  0) || (bt_delta_ph[i][1] == 0x0 && bt_sign_ph[i][2] ==  0)) gmt_crg[i] =  1; else gmt_crg[i] =  0; break;
-                  case 14:    if ((bt_sign_ph[i][0] == 0) || (bt_delta_ph[i][0] == 0 && bt_sign_ph[i][1] ==  0)) gmt_crg[i] =  0; else gmt_crg[i] =  1; break;
-                  case 13:    if ((bt_sign_ph[i][0] == 1) || (bt_delta_ph[i][0] == 0 && bt_sign_ph[i][2] ==  0)) gmt_crg[i] =  1; else gmt_crg[i] =  0; break;
-                  case 12:    if  (bt_sign_ph[i][0] == 1) gmt_crg[i] =  1; else gmt_crg[i] =  0; break;
-                  case 11:    if ((bt_sign_ph[i][1] ==  1) || (bt_delta_ph[i][1] == 0 && bt_sign_ph[i][2] ==  0)) gmt_crg[i] =  1; else gmt_crg[i] =  0; break;
-                  case 10:    if  (bt_sign_ph[i][1] ==  1) gmt_crg[i] =  1; else gmt_crg[i] =  0; break;
-                  case 9:     if  (bt_sign_ph[i][2] ==  1) gmt_crg[i] =  1; else gmt_crg[i] =  0; break;
-                  case 7:     if ((bt_sign_ph[i][3] ==  1) || (bt_delta_ph[i][3] == 0 && bt_sign_ph[i][4] ==  0)) gmt_crg[i] =  1; else gmt_crg[i] =  0; break;
-                  case 6:     if  (bt_sign_ph[i][3] ==  1) gmt_crg[i] =  1; else gmt_crg[i] =  0; break;
-                  case 5:     if  (bt_sign_ph[i][4] ==  1) gmt_crg[i] =  1; else gmt_crg[i] =  0; break;
-                  case 3:     if  (bt_sign_ph[i][5] ==  1) gmt_crg[i] =  1; else gmt_crg[i] =  0; break;
-                  default:    gmt_crg[i] =  0; break;
-              }
-
-              // end Matt's code
-          }
+	 }//for (i = 0; i < 3; i = i+1)
 
 
           // remove worst track if it addresses the same bank as one of two best tracks
-          if (sb(0,2) || sb(1,2)) ptlut_addr_val[2] =  0;
+          if (sb(0,2) || sb(1,2)){
+        	  a_ptlut_addr_val[2] =  0;
+          }
 
-
-
-
+*ptlut_addr_val= a_ptlut_addr_val;
+*gmt_crg= a_gmt_crg;
 }

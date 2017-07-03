@@ -4,7 +4,7 @@
 using namespace std;
 #define add if(this->pr==1)
 
-void match_seg::find_segment_stn1(
+void match_seg::find_segment_n1_62(
 		 ap_uint<bpow+1> ph_pat_p, // ph detected in pattern
 		 ap_uint<6> ph_pat_q_p, // pattern valid
 
@@ -38,7 +38,7 @@ void match_seg::find_segment_stn1(
 
 
 
-   const int tot_diff = max_drift*3/*zone_cham*/*seg_ch;
+   const int tot_diff = max_drift*6/*zone_cham*/*seg_ch;
    const int max_ph_diff=7;
    const int bw_phdiff=4;
    const int nodiff=15;
@@ -89,7 +89,7 @@ void match_seg::find_segment_stn1(
 	 cout<<"ph_pat_p= "<<ph_pat_p<<endl;
 	 cout<<"ph_pat_q_p= "<<ph_pat_q_p<<endl;
 	 for(int i=0;i<3;i++){
-	 	for(int j=0;j<zone_cham;j++){
+	 	for(int j=0;j<6/*zone_cham*/;j++){
 	 		for(int k=0;k<2;k++){
 	 			  cout<<hex<<"ph_seg_p["<<i<<"]["<<j<<"]["<<k<<"]= "<<ph_seg_p[i][j][k]<<hex<<endl;
 	 		}
@@ -101,7 +101,7 @@ void match_seg::find_segment_stn1(
 	 	ph_pat_v = ph_pat_q_p != 0; // non-zero quality means valid pattern
 	 	find_segment_st1_label0:for(int i=0;i<max_drift;i++){
 	 #pragma HLS UNROLL
-	 		find_segment_st1_label1:for(int j=0;j<3/*zone_cham*/;j++){
+	 		find_segment_st1_label1:for(int j=0;j<6/*zone_cham*/;j++){
 	 #pragma HLS UNROLL
 	 			find_segment_st1_label2:for(int k=0;k<seg_ch;k++){
 	 #pragma HLS UNROLL
@@ -129,7 +129,7 @@ void match_seg::find_segment_stn1(
 	 	di = 0;
 	 	find_segment_st1_label5:for (i = 0; i < max_drift; i = i+1){ // history loop
 	 #pragma HLS UNROLL
-	 		find_segment_st1_label6:for (j = 0; j < 3/*zone_cham*/; j = j+1){ // chamber loop
+	 		find_segment_st1_label6:for (j = 0; j < 6/*zone_cham*/; j = j+1){ // chamber loop
 	 #pragma HLS UNROLL
 	 			find_segment_st1_label7:for (k = 0; k < seg_ch; k = k+1){ // segment loop
 	 #pragma HLS UNROLL
@@ -143,16 +143,16 @@ void match_seg::find_segment_stn1(
 	 					ph_diff_tmp = nodiff; // if segment invalid put max value into diff
 
 	 			    if((ph_diff_tmp) > (max_ph_diff))
-	 					    ph_diff[i*3/*zone_cham*/*seg_ch + j*seg_ch + k] = nodiff; // difference is too high, cannot be the same pattern
+	 					    ph_diff[i*6/*zone_cham*/*seg_ch + j*seg_ch + k] = nodiff; // difference is too high, cannot be the same pattern
 	 			    else
-	 			 	    ph_diff[i*3/*zone_cham*/*seg_ch + j*seg_ch + k] = ph_diff_tmp(bw_phdiff-1,0);
+	 			 	    ph_diff[i*6/*zone_cham*/*seg_ch + j*seg_ch + k] = ph_diff_tmp(bw_phdiff-1,0);
 
 
 	 				ri = i;
 	 				rj = j;
 	 				rk = k;
 	 				// diffi variables carry track indexes
-	 				diffi0[i*3/*zone_cham*/*seg_ch + j*seg_ch + k] = (ri, rj, rk);
+	 				diffi0[i*6/*zone_cham*/*seg_ch + j*seg_ch + k] = (ri, rj, rk);
 	 			}
 	 		}
 	 	} // for (i = 0; i < max_drift; i = i+1)

@@ -64,11 +64,12 @@
 // macro for detecting same bank address
 // bank and chip must match, and valid flags must be set
 // a and b are indexes 0,1,2
-#define sb(a,b) (ptlut_addr[a](29,26) == ptlut_addr[b](29,26) && ptlut_addr[a](5,2) == ptlut_addr[b](5,2) && ptlut_addr_val[a] && ptlut_addr_val[b])
+#define sb(a,b) (ptlut_addr[a](29,26) == ptlut_addr[b](29,26) && ptlut_addr[a](5,2) == ptlut_addr[b](5,2) && a_ptlut_addr_val[a] && a_ptlut_addr_val[b])
 
 
 class ptlut{
 public:
+	ap_uint<1> pr;
 /*	 ap_uint<9> th_eta0 [128];
      ap_uint<9> th_eta1 [128];
      ap_uint<9> th_eta2 [128];
@@ -140,44 +141,43 @@ for(int i=0;i<512;i++){
        sign_lut_2 [i]=temp_sign_lut[i];
 }
 }*/
-    void ptlut_address_actual (
-    		// precise phi and theta of best tracks
-    		// [best_track_num]
-    		ap_uint<bw_fph>  bt_phi_i [3],
-    		ap_uint<bw_th>  	bt_theta_i [3],
-    		// [best_track_num][station 0-3]
-    		ap_uint<4> 		bt_cpattern [3][4],
-    		// ph and th deltas from best stations
-    		// [best_track_num], last index: 0=12, 1=13, 2=14, 3=23, 4=24, 5=34
-    		ap_uint<bw_fph> bt_delta_ph [3][6],
-    		ap_uint<bw_th>  	bt_delta_th [3][6],
-    		ap_uint<6> 		bt_sign_ph[3],
-    		ap_uint<6>  		bt_sign_th[3],
-    		// ranks [best_track_num]
-    		ap_uint<bwr+1> 	bt_rank_i [3],
-    		//[best_track_num][station 0-4]
-    		ap_uint<seg_ch>  bt_vi [3][5], // valid
-    		ap_uint<2> 		bt_hi [3][5], // bx index
-    		ap_uint<4>  		bt_ci [3][5], // chamber
-    		ap_uint<5> 		bt_si [3], // segment
+	void ptlut_address_actual(
+			// precise phi and theta of best tracks
+			// [best_track_num]
+			ap_uint<bw_fph>  bt_phi_i [3],
+			ap_uint<bw_th>  	bt_theta_i [3],
+			// [best_track_num][station 0-3]
+			ap_uint<4> 		bt_cpattern [3][4],
+			// ph and th deltas from best stations
+			// [best_track_num], last index: 0=12, 1=13, 2=14, 3=23, 4=24, 5=34
+			ap_uint<bw_fph> bt_delta_ph [3][6],
+			ap_uint<bw_th>  	bt_delta_th [3][6],
+			ap_uint<6> 		bt_sign_ph[3],
+			ap_uint<6>  		bt_sign_th[3],
+			// ranks [best_track_num]
+			ap_uint<bwr+1> 	bt_rank_i [3],
+			//[best_track_num][station 0-4]
+			ap_uint<seg_ch>  bt_vi [3][5], // valid
+			ap_uint<2> 		bt_hi [3][5], // bx index
+			ap_uint<4>  		bt_ci [3][5], // chamber
+			ap_uint<5> 		bt_si [3], // segment
 
-    	    ap_uint<1> vl_single,
-    	    ap_uint<bw_fph> ph_single,
-    	    ap_uint<bw_th> th_single,
+		    ap_uint<1> vl_single,
+		    ap_uint<bw_fph> ph_single,
+		    ap_uint<bw_th> th_single,
 
-    		ap_uint<30> ptlut_addr [3],
-    		ap_uint<32> ptlut_cs [3],
-    		ap_uint<3> ptlut_addr_val,
-    		ap_uint<bwr+1> bt_rank_o [3],
+			ap_uint<30> ptlut_addr [3],
+			ap_uint<32> ptlut_cs [3],
+			ap_uint<3> *ptlut_addr_val,
+			ap_uint<bwr+1> bt_rank_o [3],
 
-    		ap_uint<8> gmt_phi [3],
-    		ap_uint<9> gmt_eta [3],
-    		ap_uint<4> gmt_qlt [3],
-    		ap_uint<3> gmt_crg,
+			ap_uint<8> gmt_phi [3],
+			ap_uint<9> gmt_eta [3],
+			ap_uint<4> gmt_qlt [3],
+			ap_uint<3> *gmt_crg,
 
-    		ap_uint<3> sector,
-    		ap_uint<1> endcap);
-
+			ap_uint<3> sector,
+			ap_uint<1> endcap);
 
 
 

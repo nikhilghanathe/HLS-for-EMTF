@@ -3,7 +3,7 @@
 #include "ptlut_address.h"
 #include "sp.h"
 
-
+//wrapper function for ptlut
 void sp_c::ptlut_address(
 		// precise phi and theta of best tracks
 		// [best_track_num]
@@ -31,13 +31,13 @@ void sp_c::ptlut_address(
 
 		ap_uint<30> ptlut_addr [3],
 		ap_uint<32> ptlut_cs [3],
-		ap_uint<3> ptlut_addr_val,
+		ap_uint<3> *ptlut_addr_val,
 		ap_uint<bwr+1> bt_rank_o [3],
 
 		ap_uint<8> gmt_phi [3],
 		ap_uint<9> gmt_eta [3],
 		ap_uint<4> gmt_qlt [3],
-		ap_uint<3> gmt_crg,
+		ap_uint<3> *gmt_crg,
 
 		ap_uint<3> sector,
 		ap_uint<1> endcap,
@@ -48,7 +48,8 @@ void sp_c::ptlut_address(
 #pragma HLS INTERFACE ap_ctrl_none port=return
 #pragma HLS PIPELINE II=1
 
-
+	ap_uint<3> a_ptlut_addr_val;
+	ap_uint<3> a_gmt_crg;
 
 	static ptlut inst;
 
@@ -71,15 +72,18 @@ void sp_c::ptlut_address(
 			    th_single,
 				ptlut_addr ,
 				ptlut_cs ,
-				ptlut_addr_val,
+				&a_ptlut_addr_val,
 				bt_rank_o ,
 				gmt_phi ,
 				gmt_eta,
 				gmt_qlt ,
-				gmt_crg,
+				&a_gmt_crg,
 			    sector,
 				endcap
 				);
+
+*ptlut_addr_val= a_ptlut_addr_val;
+*gmt_crg= a_gmt_crg;
 
 	}
 

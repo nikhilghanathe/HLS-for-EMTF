@@ -3,11 +3,12 @@
 
 class sorter{
 public:
-
-	ap_uint<bwr> a[cnrex];
+	ap_uint<1> pr;
+	ap_uint<bwr> rankr[cnrex];
 
 	void sort(ap_uint<bwr> *winner0,
 			ap_uint<bpow+1> *winindex0,
+			int station,
 			ap_uint<bwr> ret_win[cnr]);
 
 	void sort1(ap_uint<bwr> ret_win[cnr],
@@ -17,6 +18,7 @@ public:
 
 	void best3(ap_uint<bwr> rank_ex[cnrex],
 			ap_uint<bwr> winner[3],
+			int station,
 			ap_uint<bpow+1> winid[3]);
 
 

@@ -3,8 +3,8 @@
 #include "sp.h"
 #include "best_track.h"
 
-
-void best_tracks(
+using namespace std;
+void sp_c::best_tracks(
 		ap_uint<bw_fph>  phi [4][3],
 		ap_uint<bw_th>  theta [4][3],
 			// [zone][pattern_num][station]
@@ -75,7 +75,8 @@ void best_tracks(
 
 
 static best_track inst;
-
+inst.pr=0;
+//cout<<"In best_tracks"<<endl;
 inst.best_tracks_actual(
 				phi ,
 				theta ,

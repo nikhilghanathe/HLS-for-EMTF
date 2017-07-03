@@ -20,17 +20,20 @@ ap_uint<bwr> min_elem(ap_uint<bwr> a,
 
 
 	*index = temp==a ? 0: temp==b ? 1 : temp==c ? 2:3;*/
+
+			temp=d; *index=3;
+
+
 	if(a>=b && a>=c && a>=d){
 		temp=a; *index=0;
 	}
-	else if(b>=a && b>=c && b>=d){
+
+	if(b>=a && b>=c && b>=d){
 		temp=b; *index=1;
 	}
-	else if(c>=a && c>=b && c>=d){
+
+	if(c>=a && c>=b && c>=d){
 		temp=c; *index=2;
-	}
-	else{
-		temp=d; *index=3;
 	}
 
 
