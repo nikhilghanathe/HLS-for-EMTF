@@ -1,6 +1,10 @@
-#include <ap_int.h>
-#include "spbits.h"
-#include "sp.h"
+#ifndef CMSSW_MACRO
+ #include <ap_int.h>
+#else
+ #include "../include/ap_int.h"
+#endif
+//#include "../interface/spbits.h"
+#include "../interface/sp.h"
 #include <iostream>
 #include <sys/time.h>
 #include <time.h>
@@ -8,7 +12,8 @@
 #include <string>
 #include <cstring>
 
-using namespace std;
+#define PRINT_FLAG 1 // 1= debug ON
+					 // 0= debug OFF
 
 
 double timerval () {
@@ -55,8 +60,7 @@ double timerval () {
 		&gmt_crg,\
    		(endcap),\
    		(sector),\
-   		(lat_test),\
-   		print_flag\
+   		(lat_test)\
    		);
 
 #define fill_param(addr,r_in,b,c) for(int s=0;s<6;s++)\
@@ -64,8 +68,8 @@ double timerval () {
 addri=addr; r_ini=r_in; csi[b][c]=1; call_sp();
 
 #define  fill_LUT_th_corr(a,b,c) \
-	    i=0;  addri=0; seli=2; sel11i=1;\
-	   for(int j=0;j<5;j++)\
+	    i=0;  addri=0; seli=2; \
+	   for(int j=0;j<6;j++)\
 	   	csi[j]=0;\
 	   csi[b][c]=1;\
 	   fp=fopen(concat,"r");\
@@ -74,22 +78,22 @@ addri=addr; r_ini=r_in; csi[b][c]=1; call_sp();
 	    addri=p;\
 	   	r_ini=tmp;\
 	   	call_sp();\
-	   	if(feof(fp)) { cout<<"!!!!!!!!!!!!!!!!!!!!!!!!  EOF reached"<<endl;\
+	   	if(feof(fp)) { std::cout<<"!!!!!!!!!!!!!!!!!!!!!!!!  EOF reached"<<std::endl;\
 	   	break;\
 	   	}\
 	   }fclose(fp)\
 
 
 #define  fill_LUT_th(a,b,c) \
-	    i=0;  addri=0; seli=1; sel11i=2;\
-	   for(int j=0;j<5;j++)\
+	    i=0;  addri=0; seli=1; \
+	   for(int j=0;j<6;j++)\
 	   	csi[j]=0;\
 	   csi[b][c]=1;\
 	   fp=fopen(concat,"r");\
 	   for( int p=0;p<th_mem_sz||(!feof(fp));p++){\
 	   	fscanf(fp,"%x",&tmp);\
-	   	if(feof(fp)) { cout<<"!!!!!!!!!!!!!!!!!!!!!!!!  EOF reached"<<endl;\
-	   		   				   		   	break;}\
+	   	if(feof(fp)) { std::cout<<"!!!!!!!!!!!!!!!!!!!!!!!!  EOF reached"<<std::endl;\
+	    break;}\
 	    addri=p;\
 	   	r_ini=tmp;\
 	   	call_sp();   }\
@@ -151,8 +155,7 @@ for(int i=0;i<6;i++){
 	ap_uint<9>  		  csi [6];
 	ap_uint<5>  		  pps_csi [3];
 	ap_uint<2>  		  seli;
-	ap_uint<2> 			  sel11i;
-	ap_uint<bw_addr>  addri;
+	ap_uint<bw_addr>  	  addri;
 
 	ap_uint<13>  		  r_ini; // ap_uint<> data for memory or ap_uint<>ister
 	ap_uint<12>  	  r_outo; // output data from memory or ap_uint<>ister
@@ -198,9 +201,9 @@ for(int i=0;i<6;i++){
 
 	// arrays below contains values for each chamber
 	// chamber count is ME1=12*2 ME2,3,4=9*3, total 51
-	ap_uint<bw_th>    th_init [51]; // chamber origins in th
-	ap_uint<bw_ph>  	  ph_disp [51]; // chamber displacements in ph
-	ap_uint<bw_th>    th_disp [51]; // chamber displacements in th
+	ap_uint<bw_th>    th_init [61]; // chamber origins in th
+	ap_uint<bw_ph>  	  ph_disp [61]; // chamber displacements in ph
+	ap_uint<bw_th>    th_disp [61]; // chamber displacements in th
 
 	// event storage
 	ap_uint<seg_ch>  valid     [max_ev][6][9];
@@ -212,7 +215,7 @@ for(int i=0;i<6;i++){
 	int 	      iadr = 0, s = 0, i = 0, pi, j = 0, sn;
 	//ap_uint<16>  		  v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11;
 	int  		  v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11;
-	ap_uint<1> print_flag=0;
+
 /*	    ap_uint<3>  		  pr_cnt [6][9];
 	ap_uint<10>  		  _event;
 	ap_uint<10>  		  _bx_jitter;
@@ -309,7 +312,7 @@ for(int i=0;i<6;i++){
 
 
 	sim_out=fopen("/home/nikhil/Verification_PRATAP/HLS_sim.out","w");
-	if(sim_out==NULL)cout <<sim_out<<endl;
+	//if(sim_out==NULL)cout <<sim_out<<endl;
 	char concat[1000];
 
 	sprintf(concat,"%s/vl_lut/vl_th_corr_lut%ssub_1_st_1_ch_1.lut",dpath,fes);
@@ -317,7 +320,6 @@ for(int i=0;i<6;i++){
 	vllut_in = fopen(concat, "r");
 	if (vllut_in == NULL){
 		 fprintf( sim_out,"%s","cannot open lut file\n");
-		 cout<<"inhere"<<endl;
 		 fclose(sim_out);
 		return 0;
 	}
@@ -330,7 +332,7 @@ for(int i=0;i<6;i++){
 	static sp_c uut;
 
 	//////////Print flag for DEBUG//////////////
-	    uut.pr=1;
+	    uut.pr=PRINT_FLAG;
 	////////////////////////////////////////////
 
 
@@ -1119,8 +1121,8 @@ FILE *fp_phnum;
 	               iev = i;
 	               fprintf(fp_phnum,"event: %d\n", iev);
 	               fprintf(sim_out, "event: %d\n", iev);
-	               cout<<endl;
-	               cout<<hex<<"event:"<< int(iev)<<hex<<endl;
+	               std::cout<<std::endl<<std::endl;
+	               std::cout<<std::hex<<"event:"<< int(iev)<<std::hex<<std::endl;
 
 	               //$fwrite(sim_out, "ph: %d %d %d %d %d\n",
 	               //        uut.ph[0][3][0], uut.ph[1][3][0], uut.ph[2][3][0], uut.ph[3][3][0], uut.ph[4][3][0]);
@@ -1247,9 +1249,9 @@ FILE *fp_phnum;
 	  			num++;
 
 	  		}
-	  		cout<<"bt_phi[0]= "<<bt_phi[0]<<endl;
-	   		cout<<"bt_sign_ph[0]= "<<bt_sign_ph[0]<<endl;
-	   		cout<<"bt_sign_th[0]= "<<bt_sign_th[0]<<endl;
+	  		std::cout<<"bt_phi[0]= "<<bt_phi[0]<<std::endl;
+	  		std::cout<<"bt_sign_ph[0]= "<<bt_sign_ph[0]<<std::endl;
+	  		std::cout<<"bt_sign_th[0]= "<<bt_sign_th[0]<<std::endl;
 //	   		cout<<"bt_theta[0]= "<<bt_theta[0]<<endl;
 //	   		cout<<"bt_cpattern[0]= "<<bt_cpattern[0][0]<<endl;
 //	   		cout<<"bt_delta_ph[0]= "<<bt_delta_ph[0][0]<<endl;
@@ -1261,9 +1263,9 @@ FILE *fp_phnum;
 //	   		cout<<"bt_delta_ph[3]= "<<bt_delta_ph[0][3]<<endl;
 //	   		cout<<"bt_delta_ph[5]= "<<bt_delta_ph[0][5]<<endl;
 //	   		cout<<"bt_delta_ph[0]= "<<bt_delta_ph[0][0]<<endl;
-	   		cout<<"ptlut_addr[0]= "<<ptlut_addr[0]<<endl;
-	   		cout<<"gmt_eta[0]= "<<gmt_eta[0]<<endl;
-	   		cout<<"gmt_qlt[0]= "<<gmt_qlt[0]<<endl;
+	  		std::cout<<"ptlut_addr[0]= "<<ptlut_addr[0]<<std::endl;
+	  		std::cout<<"gmt_eta[0]= "<<gmt_eta[0]<<std::endl;
+	  		std::cout<<"gmt_qlt[0]= "<<gmt_qlt[0]<<std::endl;
 	   		//cout<<"bt_phi[2]= "<<uut.bt_phi_1[2]<<endl;
 /*	   		cout<<"bt_vi[0][0]= "<<bt_vi[0][0]<<endl;
 	   		cout<<"bt_vi[0][1]= "<<bt_vi[0][1]<<endl;
@@ -1271,15 +1273,15 @@ FILE *fp_phnum;
 	   		cout<<"bt_vi[0][3]= "<<bt_vi[0][3]<<endl;
 	   		cout<<"bt_vi[0][4]= "<<bt_vi[0][4]<<endl;*/
 
+
 	   	}
-	   	cout <<"here"<<sizeof(int)<<endl;
+	   	std::cout <<"here"<<sizeof(int)<<std::endl;
 	   	//cout<<"events = "<<int(good_ev_cnt)<<endl;
 	   	fprintf(sim_out, "elapsed_time: %lf\n", elapsed_time);
 	   	fclose (best_tracks);
 	   	fclose (ph_out);
 	   	fclose (th_out);
 	   	fclose (sim_out);
-
 
 
 return 0;
