@@ -76,6 +76,9 @@ void best_track::best_tracks_actual(ap_uint<bw_fph> phi[4][3],
 
 
 	        ap_uint<bw_fph> a_bt_phi[3];
+			#ifdef CMSSW_MACRO
+				a_bt_phi[0]=0; a_bt_phi[1]=0; a_bt_phi[2]=0;
+			#endif
 	        ap_uint<bw_th> a_bt_theta[3];
 			ap_uint<4> a_bt_cpattern[3][4];
 			ap_uint<bw_fph> a_bt_delta_ph[3][6];
@@ -563,7 +566,7 @@ cout<<"kill1= "<<kill1<<endl;
 	}
 	if(this->pr){
 	for(int j=0;j<36;j++){
-		cout<<"larger["<<i<<"]= "<<larger[i]<<endl;
+		cout<<"larger["<<j<<"]= "<<larger[j]<<endl;
 	}
 
 for(int i=0;i<3;i++){

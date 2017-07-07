@@ -104,7 +104,7 @@ ap_uint<3> count_shsegs(ap_uint<2> ai[5],ap_uint<4> bi[5],ap_uint<5> ci,ap_uint<
 #pragma HLS PIPELINE II=1
 
 ap_uint<4> bxor[5];
-ap_uint<5> cxor;
+ap_uint<5> cxor=0;
 ap_uint<2> dxor[5];
 ap_uint<2> aor[5];
 ap_uint<4> comp[5];

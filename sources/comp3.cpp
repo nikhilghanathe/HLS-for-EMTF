@@ -12,7 +12,7 @@
 
 ap_uint<2> match_seg::comp3(ap_uint<5> a,ap_uint<5> b,ap_uint<5> c)
 {
- ap_uint<3> r;
+ ap_uint<3> r=0;
  ap_uint<2> a_comp3;
 
 	if(a <= b)

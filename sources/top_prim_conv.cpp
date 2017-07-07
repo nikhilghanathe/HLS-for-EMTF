@@ -37,7 +37,7 @@ void primitive::top_prim_conv(
 #pragma HLS PIPELINE II=1
 
 
-	ap_uint<3> a_phzvl;
+	ap_uint<3> a_phzvl=0;
 	ap_uint<ph_hit_w> a_ph_hit;
 	ap_uint<th_hit_w> a_th_hit;
 if(we==1)

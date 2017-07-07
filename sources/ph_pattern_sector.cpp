@@ -1,13 +1,15 @@
 #ifndef CMSSW_MACRO
  #include <ap_int.h>
+ #include <ap_utils.h>
 #else
 #include "../include/ap_int.h"
+#include "../include/ap_utils.h"
 #endif
 
 #include "../interface/spbits.h"
 #include "../interface/ph_pattern.h"
 #include "../interface/sp.h"
-#include <ap_utils.h>
+
 using namespace std;
 #define pad (ph_raw_w + (padding_w_st1*2))
 

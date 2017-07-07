@@ -58,12 +58,12 @@ void match_seg::find_segment_stn1_7_2(
     const int nodiff = 0x1ff ; // invalid difference
 
 if(this->pr && ki==0){
-	//cout<<"stage1= "<<stage1<<" stage2= "<<stage2<<" stage3= "<<stage3<<endl;
+	//cout<<"stage1= "<<stage1<<" stage2= "<<stage2<<" stage3= "<<stage3<<std::endl;
 }
 
 	int i,j,k,di;
-	ap_uint<bw_fph> ph_pat; // ph detected in pattern
-	ap_uint<1>		ph_pat_v; // pattern valid
+	ap_uint<bw_fph> ph_pat=0; // ph detected in pattern
+	ap_uint<1>		ph_pat_v=0; // pattern valid
 	ap_uint<bw_fph> ph_seg [max_drift][zone_cham][seg_ch];
 	ap_uint<seg_ch> ph_seg_v [max_drift][zone_cham];
 	ap_uint<bw_th>  th_seg [max_drift][zone_cham][/*zone_seg*/2];
@@ -94,21 +94,7 @@ if(this->pr && ki==0){
 
 
 
-		if(this->pr==1 && ki==0){
-		//	cout<<"ph_pat_v= "<<ph_pat_v<<endl;
-		}
-		for(int i=0;i<max_drift;i++){
-			for(int j=0;j<zone_cham;j++){
-				for(int k=0;k<seg_ch;k++){
-					if(this->pr==1 && ki==0){
-					//	cout<<"ph_seg["<<i<<"]["<<j<<"]["<<k<<"]= "<<ph_seg[i][j][k]<<endl;
-					}
-				}
-				for(int k=0;k</*zone_seg*/2;k++){
-				}
 
-			}
-		}
 
 		ph_pat = (ph_pat_p, ap_uint<5>(0)); // add missing 5 lower bits to pattern phi
 		ph_pat_v = ph_pat_q_p != 0; // non-zero quality means valid pattern
@@ -127,6 +113,21 @@ if(this->pr && ki==0){
 			}
 		}
 
+	if(this->pr==1 && ki==0){
+		//	cout<<"ph_pat_v= "<<ph_pat_v<<std::endl;
+	}
+		for(int i=0;i<max_drift;i++){
+			for(int j=0;j<zone_cham;j++){
+				for(int k=0;k<seg_ch;k++){
+					if(this->pr==1 && ki==0){
+					//	cout<<"ph_seg["<<i<<"]["<<j<<"]["<<k<<"]= "<<ph_seg[i][j][k]<<std::endl;
+					}
+				}
+				for(int k=0;k</*zone_seg*/2;k++){
+				}
+
+			}
+		}
 
 
 		// fill unused differences with max values
@@ -138,7 +139,6 @@ if(this->pr && ki==0){
 		diffi0 [tot_diff  ] = 0x3f; // invalid
 
 		// calculate abs differences
-		di = 0;
 		for (i = 0; i < max_drift; i = i+1){ // history loop
 			for (j = 0; j < zone_cham; j = j+1){ // chamber loop
 				for (k = 0; k < seg_ch; k = k+1){ // segment loop
@@ -168,7 +168,7 @@ if(this->pr && ki==0){
 
 		if(this->pr==1 && ki==0){
 	//	for(int i=0;i<tot_diff+3;i++)
-//			cout<<"diffi0["<<i<<"]= "<<diffi0[i]<<endl;
+//			cout<<"diffi0["<<i<<"]= "<<diffi0[i]<<std::endl;
 		}
 
 
@@ -201,10 +201,10 @@ if(this->pr && ki==0){
 		}
 		if(this->pr==1 && ki==0){
 	//	for(int i=0;i<stage1;i++)
-		//	cout<<"diffi1["<<i<<"]= "<<diffi1[i]<<endl;
+		//	cout<<"diffi1["<<i<<"]= "<<diffi1[i]<<std::endl;
 
 //		for(int i=0;i<(stage2 == 6 ? 5 : stage2);i++)
-	//				cout<<"diffi2["<<i<<"]= "<<diffi2[i]<<endl;
+	//				cout<<"diffi2["<<i<<"]= "<<diffi2[i]<<std::endl;
 		}
         // fill unused comparator output in case of 7-chamber unit
         if (stage2 == 6){
@@ -242,7 +242,7 @@ if(this->pr && ki==0){
 			diffi4 = diffi3[0];
 		}
 		if(this->pr && ki==0){
-	//		cout<<"diffi4= "<<diffi4<<endl;
+	//		cout<<"diffi4= "<<diffi4<<std::endl;
 		}
 		(a_hid, a_cid, a_sid) = diffi4;
 		a_vid = ph_seg_v[a_hid][a_cid][a_sid];
@@ -251,8 +251,8 @@ if(this->pr && ki==0){
 
         *ph_match = ph_seg[a_hid][a_cid][a_sid]; // route best matching phi to output
         if(this->pr && ki==0){
-  //       	cout<<"ph_match= "<<*ph_match<<endl;
-  //       	cout<<"a_hid= "<<a_hid<<" a_cid= "<<a_cid<<" a_sid= "<<a_sid<<endl;
+  //       	cout<<"ph_match= "<<*ph_match<<std::endl;
+  //       	cout<<"a_hid= "<<a_hid<<" a_cid= "<<a_cid<<" a_sid= "<<a_sid<<std::endl;
          }
           // rework of th_match to remove unphysical thetas, per Jia Fu request 2016-10-18
         if (/*zone_seg*/2 == seg_ch){ // not ME1/1

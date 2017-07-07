@@ -58,8 +58,8 @@ void match_seg::find_segment_st1_7_4(
 
 
 	int i,j,k,di;
-	ap_uint<bw_fph> ph_pat; // ph detected in pattern
-	ap_uint<1>		ph_pat_v; // pattern valid
+	ap_uint<bw_fph> ph_pat=0; // ph detected in pattern
+	ap_uint<1>		ph_pat_v=0; // pattern valid
 	ap_uint<bw_fph> ph_seg [max_drift][zone_cham][seg_ch];
 	ap_uint<seg_ch> ph_seg_v [max_drift][zone_cham];
 	ap_uint<bw_th>  th_seg [max_drift][zone_cham][zone_seg];
@@ -87,25 +87,7 @@ void match_seg::find_segment_st1_7_4(
 	ap_uint<3> 		a_cid; // chamber id
 	ap_uint<1> 		a_sid; // segment id
 
-if(this->pr){
-	cout<<"ph_pat_q_p= "<<ph_pat_q_p<<endl;
-}
 
-		for(int i=0;i<max_drift;i++){
-			for(int j=0;j<zone_cham;j++){
-				for(int k=0;k<seg_ch;k++){
-					if(this->pr){
-						cout<<"ph_seg["<<i<<"]["<<j<<"]["<<k<<"]= "<<ph_seg[i][j][k]<<endl;
-					}
-				}
-				for(int k=0;k<zone_seg;k++){
-					if(this->pr){
-					//	cout<<"th_seg["<<i<<"]["<<j<<"]["<<k<<"]= "<<th_seg[i][j][k]<<endl;
-					}
-				}
-
-			}
-		}
 		ph_pat = (ph_pat_p, ap_uint<5>(0)); // add missing 5 lower bits to pattern phi
 		ph_pat_v = ph_pat_q_p != 0; // non-zero quality means valid pattern
 
@@ -122,6 +104,26 @@ if(this->pr){
 
 			}
 		}
+		
+		if(this->pr){
+	std::cout<<"ph_pat_q_p= "<<ph_pat_q_p<<std::endl;
+}
+
+		for(int i=0;i<max_drift;i++){
+			for(int j=0;j<zone_cham;j++){
+				for(int k=0;k<seg_ch;k++){
+					if(this->pr){
+						std::cout<<"ph_seg["<<i<<"]["<<j<<"]["<<k<<"]= "<<ph_seg[i][j][k]<<std::endl;
+					}
+				}
+				for(int k=0;k<zone_seg;k++){
+					if(this->pr){
+					//	std::cout<<"th_seg["<<i<<"]["<<j<<"]["<<k<<"]= "<<th_seg[i][j][k]<<std::endl;
+					}
+				}
+
+			}
+		}
 		// fill unused differences with max values
 		ph_diff[tot_diff+2] = nodiff;
 		ph_diff[tot_diff+1] = nodiff;
@@ -131,7 +133,7 @@ if(this->pr){
 		diffi0 [tot_diff  ] = 0x3f; // invalid
 
 		// calculate abs differences
-		di = 0;
+	
 		for (i = 0; i < max_drift; i = i+1){ // history loop
 			for (j = 0; j < zone_cham; j = j+1){ // chamber loop
 				for (k = 0; k < seg_ch; k = k+1){ // segment loop
@@ -225,7 +227,7 @@ if(this->pr){
 		a_vid = ph_seg_v[a_hid][a_cid][a_sid];
 
         if(this->pr){
-         	cout<<"a_hid= "<<a_hid<<" a_cid= "<<a_cid<<" a_sid= "<<a_sid<<endl;
+         	std::cout<<"a_hid= "<<a_hid<<" a_cid= "<<a_cid<<" a_sid= "<<a_sid<<std::endl;
          }
 		// if pattern invalid or all differences invalid remove valid flags
 		if (!ph_pat_v || cmp4 == nodiff) a_vid = 0;

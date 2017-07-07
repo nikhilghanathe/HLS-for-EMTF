@@ -54,11 +54,19 @@ void ptlut::ptlut_address_actual(
 
 	ap_uint<bw_fph> bt_phi [3];
     ap_uint<bw_th>  bt_theta [3];
+	
     ap_uint<bwr+1>  bt_rank [3];
 
     ap_uint<3>  stA, stB;
     ap_uint<3>  bt_stA, bt_stB;
     ap_uint<3>  dA, dB, dT;
+	#ifdef CMSSW_MACRO
+		bt_phi[0]=0; bt_phi[1]=0; bt_phi[2]=0;
+		bt_theta[0]=0; bt_theta[1]=0; bt_theta[2]=0;
+		bt_rank[0]=0; bt_rank[1]=0; bt_rank[2]=0;
+		stA=0; stB=0; dA=0; dB=0; dT=0;
+	#endif
+	
 
     ap_uint<9> dphi_5bits;
     ap_uint<9> dphi_6bits;
@@ -160,8 +168,8 @@ void ptlut::ptlut_address_actual(
    gmt_eta[1] = th_eta1[bt_theta[1]];
    gmt_eta[2] = th_eta2[bt_theta[2]];
 
-   ap_uint<3> a_ptlut_addr_val;
-   ap_uint<3> a_gmt_crg;
+   ap_uint<3> a_ptlut_addr_val=0;
+   ap_uint<3> a_gmt_crg=0;
   for (i = 0; i < 3; i = i+1){
 //#pragma HLS DEPENDENCE false
 #pragma HLS UNROLL

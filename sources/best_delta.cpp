@@ -27,10 +27,10 @@ void delta::best_delta_seg_ch(
 
 	ap_uint<1>		   one_val;
 	int i;
-	ap_uint<bw_th> cmp1 [nseg/2];
-	ap_uint<bw_th>  cmp2 [nseg/4];
-	ap_uint<nseg/2> sig1;
-	ap_uint<nseg/4> sig2;
+	ap_uint<bw_th> cmp1 [nseg/2]={0,0};
+	ap_uint<bw_th>  cmp2 [nseg/4]={0};
+	ap_uint<nseg/2> sig1=0;
+	ap_uint<nseg/4> sig2=0;
 	ap_uint<bw_num> num1 [nseg/2];
 	ap_uint<bw_num> num2 [nseg/4];
 	

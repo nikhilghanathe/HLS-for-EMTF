@@ -176,7 +176,7 @@ void sp_c::prim_conv_sector(/*inputs*/
    					j,//cscid
    					r_in, we_w[5][0], ph[5][0], th[5][0], &vl[5][0],
    					&phzvl[5][0], &me11a[2][0], cpatr[5][0], &ph_hit[5][0],
-   					sel, addr, endcap,  &r_out_w[i][j]);
+   					sel, addr, endcap,  &r_out_w[0][0]);
    if(this->pr)std::cout<<"PrimSector phzvl["<<5<<"]["<<0<<"]= "<<phzvl[5][0]<<std::endl;
 
 
@@ -188,7 +188,7 @@ void sp_c::prim_conv_sector(/*inputs*/
    					cpat[5][j], station, cscid,
    					r_in, we_w[5][j], ph[5][j], th[5][j], &vl[5][j],
    					&phzvl[5][j], &dummy[5][j], cpatr[5][j], &ph_hit[5][j],
-   					sel, addr, endcap, lat_test, &r_out_w[i][j]);
+   					sel, addr, endcap, lat_test, &r_out_w[5][j]);
 
    if(this->pr)std::cout<<"PrimSector phzvl["<<5<<"]["<<j<<"]= "<<phzvl[5][j]<<std::endl;
    }

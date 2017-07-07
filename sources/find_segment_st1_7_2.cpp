@@ -62,7 +62,7 @@ void match_seg::find_segment_st1_7_2(
 	int i,j,k,di;
 	//registers
 	ap_uint<bw_fph> ph_pat; // ph detected in pattern
-	ap_uint<1>		ph_pat_v; // pattern valid
+	ap_uint<1>		ph_pat_v=0; // pattern valid
 	ap_uint<bw_fph> ph_seg [max_drift][zone_cham][seg_ch];
 	ap_uint<seg_ch> ph_seg_v [max_drift][zone_cham];
 	ap_uint<bw_th>  th_seg [max_drift][zone_cham][/*zone_seg*/2];
@@ -91,22 +91,6 @@ void match_seg::find_segment_st1_7_2(
 	ap_uint<1> 		 a_sid; // segment id
 
 
-		if(this->pr==1 && ki==0){
-			cout<<"ph_pat_v= "<<ph_pat_v<<endl;
-		}
-		for(int i=0;i<max_drift;i++){
-			for(int j=0;j<zone_cham;j++){
-				for(int k=0;k<seg_ch;k++){
-					if(this->pr==1 && ki==0){
-						cout<<"ph_seg["<<i<<"]["<<j<<"]["<<k<<"]= "<<ph_seg[i][j][k]<<endl;
-					}
-				}
-				for(int k=0;k</*zone_seg*/2;k++){
-				}
-
-			}
-		}
-
 
 
 		ph_pat = (ph_pat_p, ap_uint<5>(0)); // add missing 5 lower bits to pattern phi
@@ -125,6 +109,24 @@ void match_seg::find_segment_st1_7_2(
 
 			}
 		}
+	
+	if(this->pr==1 && ki==0){
+		std::cout<<"ph_pat_v= "<<ph_pat_v<<std::endl;
+		}
+		for(int i=0;i<max_drift;i++){
+			for(int j=0;j<zone_cham;j++){
+				for(int k=0;k<seg_ch;k++){
+					if(this->pr==1 && ki==0){
+						std::cout<<"ph_seg["<<i<<"]["<<j<<"]["<<k<<"]= "<<ph_seg[i][j][k]<<std::endl;
+					}
+				}
+				for(int k=0;k</*zone_seg*/2;k++){
+				}
+
+			}
+		}
+
+
 		// fill unused differences with max values
 		ph_diff[tot_diff+2] = nodiff;
 		ph_diff[tot_diff+1] = nodiff;
@@ -134,7 +136,6 @@ void match_seg::find_segment_st1_7_2(
 		diffi0 [tot_diff  ] = 0x3f; // invalid
 
 		// calculate abs differences
-		di = 0;
 		for (i = 0; i < max_drift; i = i+1){ // history loop
 			for (j = 0; j < zone_cham; j = j+1){ // chamber loop
 				for (k = 0; k < seg_ch; k = k+1){ // segment loop
@@ -232,7 +233,7 @@ void match_seg::find_segment_st1_7_2(
 
         *ph_match = ph_seg[a_hid][a_cid][a_sid]; // route best matching phi to output
         if(this->pr && ki==0){
-         	cout<<"ph_match= "<<*ph_match<<endl;
+         	std::cout<<"ph_match= "<<*ph_match<<std::endl;
          }
           // rework of th_match to remove unphysical thetas, per Jia Fu request 2016-10-18
         if (/*zone_seg*/2 == seg_ch){ // not ME1/1

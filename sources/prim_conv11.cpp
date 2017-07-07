@@ -49,9 +49,9 @@ const int ph_init_hard [5][16]= {{39,  57,  76, 39,  58,  76, 41,  60,  79, 39, 
 int i,j;
 
 
-ap_uint<12> 	temp;
+ap_uint<13> 	temp=0;
 ap_uint<8>  	pc_id;
-ap_uint<seg_ch> me11a_w;
+ap_uint<seg_ch> me11a_w=0;
 
 // initial ph for this chamber scaled to 0.1333 deg/strip
 ap_uint<12> 			  fph[seg_ch];
@@ -168,7 +168,7 @@ for(int i=0;i<seg_ch;i++){
 	for(i=0;i<seg_ch;i++){
 #pragma HLS UNROLL
 if(station==1 && cscid==0){
-	//cout<<"vpf[0]= "<<vpf[0]<<" clctpat[0]= "<<clctpat[0]<<endl;
+	//cout<<"vpf[0]= "<<vpf[0]<<" clctpat[0]= "<<clctpat[0]<<std::endl;
 }
 		if(vpf[i]){
 			a_vl[i] = 1;
@@ -197,7 +197,7 @@ if(station==1 && cscid==0){
    		 th_orig[i] = th_mem[wg[i]];
 
    		if(station==1 && cscid==0){
-   		//	cout<<"fph[0]= "<<fph[0]<<" params[0]= "<<params[0]<<endl;
+   		//	cout<<"fph[0]= "<<fph[0]<<" params[0]= "<<params[0]<<std::endl;
    		}
    		for (j = 0; j < seg_ch; j = j+1){
 #pragma HLS UNROLL

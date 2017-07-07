@@ -70,40 +70,40 @@ void delta::deltas(
 	ap_uint<bw_th> dth34 [seg_ch*seg_ch];
 #pragma HLS ARRAY_PARTITION variable=dth34 complete dim=0
 
-	ap_uint<seg1*seg_ch>  dvl12 ;
-	ap_uint<seg1*seg_ch>	dvl13 ;
-	ap_uint<seg1*seg_ch>	dvl14 ;
-	ap_uint<seg_ch*seg_ch>	dvl23 ;
-	ap_uint<seg_ch*seg_ch>	dvl24 ;
-	ap_uint<seg_ch*seg_ch>	dvl34 ;
+	ap_uint<seg1*seg_ch>  dvl12 =0;
+	ap_uint<seg1*seg_ch>	dvl13=0 ;
+	ap_uint<seg1*seg_ch>	dvl14 =0;
+	ap_uint<seg_ch*seg_ch>	dvl23 =0;
+	ap_uint<seg_ch*seg_ch>	dvl24=0 ;
+	ap_uint<seg_ch*seg_ch>	dvl34 =0;
 
-	ap_uint<bw_th> bth12 ;
-	ap_uint<bw_th> bth13 ;
-	ap_uint<bw_th> bth14 ;
-	ap_uint<bw_th> bth23 ;
-	ap_uint<bw_th> bth24 ;
-	ap_uint<bw_th> bth34 ;
+	ap_uint<bw_th> bth12=0 ;
+	ap_uint<bw_th> bth13=0 ;
+	ap_uint<bw_th> bth14=0 ;
+	ap_uint<bw_th> bth23=0 ;
+	ap_uint<bw_th> bth24=0 ;
+	ap_uint<bw_th> bth34=0 ;
 
-	ap_uint<seg1*seg_ch>  sth12;
-	ap_uint<seg1*seg_ch>  sth13;
-	ap_uint<seg1*seg_ch>  sth14;
-	ap_uint<seg_ch*seg_ch>  sth23;
-	ap_uint<seg_ch*seg_ch>  sth24;
-	ap_uint<seg_ch*seg_ch>  sth34;
+	ap_uint<seg1*seg_ch>  sth12=0;
+	ap_uint<seg1*seg_ch>  sth13=0;
+	ap_uint<seg1*seg_ch>  sth14=0;
+	ap_uint<seg_ch*seg_ch>  sth23=0;
+	ap_uint<seg_ch*seg_ch>  sth24=0;
+	ap_uint<seg_ch*seg_ch>  sth34=0;
 
-	ap_uint<bw_nm1>  bnm12;
-	ap_uint<bw_nm1>  bnm13;
-	ap_uint<bw_nm1>  bnm14;
-	ap_uint<bw_nm2>  bnm23;
-	ap_uint<bw_nm2>  bnm24;
-	ap_uint<bw_nm2>  bnm34;
+	ap_uint<bw_nm1>  bnm12=0;
+	ap_uint<bw_nm1>  bnm13=0;
+	ap_uint<bw_nm1>  bnm14=0;
+	ap_uint<bw_nm2>  bnm23=0;
+	ap_uint<bw_nm2>  bnm24=0;
+	ap_uint<bw_nm2>  bnm34=0;
 
-	ap_uint<bw_fph>    phA, phB, dph, sph;
+	ap_uint<bw_fph>    phA=0, phB=0, dph=0, sph=0;
 
-	ap_uint<bw_fph>	dph12, dph13, dph14, dph23, dph24, dph34;
-	ap_uint<1> 		sph12, sph13, sph14, sph23, sph24, sph34;
-	ap_uint<1> 		bsg12, bsg13, bsg14, bsg23, bsg24, bsg34;
-	ap_uint<1> 		bvl12, bvl13, bvl14, bvl23, bvl24, bvl34;
+	ap_uint<bw_fph>	dph12=0, dph13=0, dph14=0, dph23=0, dph24=0, dph34=0;
+	ap_uint<1> 		sph12=0, sph13=0, sph14=0, sph23=0, sph24=0, sph34=0;
+	ap_uint<1> 		bsg12=0, bsg13=0, bsg14=0, bsg23=0, bsg24=0, bsg34=0;
+	ap_uint<1> 		bvl12=0, bvl13=0, bvl14=0, bvl23=0, bvl24=0, bvl34=0;
 	ap_uint<bwr+1> a_rank;
 	int j, k;
 	ap_uint<4> i1, i2;

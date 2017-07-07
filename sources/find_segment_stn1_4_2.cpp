@@ -7,8 +7,6 @@
 #include "../interface/spbits.h"
 #include "../interface/match_seg.h"
 
-using namespace std;
-
 void match_seg::find_segment_stn1_4_2(
 	ap_uint<bpow+1> ph_pat_p, // ph detected in pattern
 	ap_uint<6>  	ph_pat_q_p, // pattern valid
@@ -58,10 +56,11 @@ void match_seg::find_segment_stn1_4_2(
 
 
 	int i,j,k,di;
-	ap_uint<bw_fph> ph_pat; // ph detected in pattern
-	ap_uint<1>		ph_pat_v; // pattern valid
-	ap_uint<bw_fph> ph_seg [max_drift][/*zone_cham*/4][seg_ch];
+	ap_uint<bw_fph> ph_pat=0; // ph detected in pattern
+	ap_uint<1>		ph_pat_v=0; // pattern valid
+	
 	ap_uint<seg_ch> ph_seg_v [max_drift][/*zone_cham*/4];
+	ap_uint<bw_fph> ph_seg [max_drift][/*zone_cham*/4][seg_ch]={};
 	ap_uint<bw_th>  th_seg [max_drift][/*zone_cham*/4][/*zone_seg*/2];
 	ap_uint<4>	 	cpat_seg [max_drift][/*zone_cham*/4][seg_ch];
     ap_uint<bw_fph> 	ph_segr;
@@ -75,7 +74,7 @@ void match_seg::find_segment_stn1_4_2(
 	ap_uint<bw_phdiff> 	cmp2 [stage2];
 	ap_uint<6> 	 		diffi2      [stage2];
 	ap_uint<bw_phdiff> 	cmp3 [stage3];
-	ap_uint<6> 	 		diffi3      [stage3];
+	ap_uint<6> 	 		diffi3      [stage3]={0};
 	ap_uint<bw_phdiff> 	cmp4;
 	ap_uint<6> 	 		diffi4;
 	ap_uint<2> 	 		ri;
@@ -113,7 +112,6 @@ void match_seg::find_segment_stn1_4_2(
 		diffi0 [tot_diff  ] = 0x3f; // invalid
 
 		// calculate abs differences
-		di = 0;
 		for (i = 0; i < max_drift; i = i+1){ // history loop
 			for (j = 0; j < /*zone_cham*/4; j = j+1){ // chamber loop
 				for (k = 0; k < seg_ch; k = k+1){ // segment loop
@@ -133,10 +131,10 @@ void match_seg::find_segment_stn1_4_2(
 
 				    if(this->pr){
 
-				    	cout<<"ph_pat= "<<ph_pat<<" ph_segr= "<<ph_segr<<endl;
-				    	cout<<"i= "<<i<<" j= "<<j<<" k= "<<k<<endl;
-				    	//cout<<"ph_seg_v= "<<ph_seg_v[i][j][k]<<endl;
-				    	cout<<"ph_diff["<<i*/*zone_cham*/4*seg_ch + j*seg_ch + k<<"]= "<<ph_diff[i*/*zone_cham*/4*seg_ch + j*seg_ch + k]<<endl;
+				    	std::cout<<"ph_pat= "<<ph_pat<<" ph_segr= "<<ph_segr<<std::endl;
+				    	std::cout<<"i= "<<i<<" j= "<<j<<" k= "<<k<<std::endl;
+				    	//std::cout<<"ph_seg_v= "<<ph_seg_v[i][j][k]<<std::endl;
+				    	std::cout<<"ph_diff["<<i*/*zone_cham*/4*seg_ch + j*seg_ch + k<<"]= "<<ph_diff[i*/*zone_cham*/4*seg_ch + j*seg_ch + k]<<std::endl;
 				    }
 					ri = i;
 					rj = j;
@@ -149,11 +147,11 @@ void match_seg::find_segment_stn1_4_2(
 		} // for (i = 0; i < max_drift; i = i+1)
 		if(this->pr){
 		for(int i=0;i<tot_diff+3;i++){
-			cout<<"diffi0["<<i<<"]= "<<diffi0[i]<<endl;
+			std::cout<<"diffi0["<<i<<"]= "<<diffi0[i]<<std::endl;
 		}
 
 		for(int i=0;i<tot_diff+3;i++){
-			cout<<"ph_diff["<<i<<"]= "<<ph_diff[i]<<endl;
+			std::cout<<"ph_diff["<<i<<"]= "<<ph_diff[i]<<std::endl;
 		}
 		}
 		// sort differences
@@ -244,7 +242,7 @@ void match_seg::find_segment_stn1_4_2(
 
 
 		if(this->pr){
-			cout<<"a_vid= "<<a_vid<<" a_hid= "<<a_hid<<" a_cid= "<<a_cid<<" a_sid= "<<a_sid<<endl;
+			std::cout<<"a_vid= "<<a_vid<<" a_hid= "<<a_hid<<" a_cid= "<<a_cid<<" a_sid= "<<a_sid<<std::endl;
 		 }
 		*vid=a_vid;
 		*hid=a_hid;
