@@ -1,0 +1,12 @@
+#include "L1Trigger/L1TMuonEndCap/interface_HLS/SectorProcessor_HLS.h"
+
+void SectorProcessor_HLS::process(int endcap/* const SectorProcessorLUT* lut, 
+						int endcap, int sector, 
+						int verbose,
+						EMTFHitCollection conv_hits,
+						EMTFTrackCollection best_tracks_HLS */){
+	
+	endcap=endcap+1;
+	
+	
+}
