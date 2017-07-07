@@ -1,0 +1,48 @@
+#ifndef L1TMuonEndCap_SectorProcessor_HLS_h
+#define L1TMuonEndCap_SectorProcessor_HLS_h
+
+
+#include "L1Trigger/L1TMuonEndCap/interface/SectorProcessor.hh"
+
+#include "DataFormats/MuonDetId/interface/DTChamberId.h"
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
+
+#include "L1Trigger/L1TMuonEndCap/interface/SectorProcessorLUT.hh"
+#include "L1Trigger/L1TMuonEndCap/interface/TrackTools.hh"
+#include "L1Trigger/L1TMuonEndCap/interface/Common.hh"
+
+
+#include "L1Trigger/L1TMuonEndCap/include/ap_int.h"
+#include "L1Trigger/L1TMuonEndCap/interface_HLS/sp.h"
+
+#include "L1Trigger/L1TMuonEndCap/interface_HLS/spbits.h"
+//#include "L1Trigger/L1TMuonEndCap/interface_HLS/primitive.h"
+/*
+#include "L1Trigger/L1TMuonEndCap/interface_HLS/zones.h"
+#include "L1Trigger/L1TMuonEndCap/interface_HLS/extender.h"
+#include "L1Trigger/L1TMuonEndCap/interface_HLS/ph_pattern.h"
+#include "L1Trigger/L1TMuonEndCap/interface_HLS/sort.h"
+#include "L1Trigger/L1TMuonEndCap/interface_HLS/match_seg.h"
+#include "L1Trigger/L1TMuonEndCap/interface_HLS/deltas.h"
+#include "L1Trigger/L1TMuonEndCap/interface_HLS/best_tracks.h"
+#include "L1Trigger/L1TMuonEndCap/interface_HLS/ptlut_address.h"
+*/
+
+
+
+class SectorProcessor_HLS{
+	public:
+	SectorProcessor_HLS();
+	~SectorProcessor_HLS();
+		  void process(int endcap/* const SectorProcessorLUT* lut, 
+						int endcap, int sector, 
+						int verbose,
+						EMTFHitCollection conv_hits,
+						EMTFTrackCollection best_tracks_HLS */);
+	
+};
+
+
+
+#endif
